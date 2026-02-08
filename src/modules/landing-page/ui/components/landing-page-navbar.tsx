@@ -49,17 +49,10 @@ export const LandingPageNavbar = () => {
               <Button variant="login" size="sm">login</Button>
             </Link>
           </SignedOut>
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
         </div>
 
         {/* Mobile Menu (Sheet) */}
         <div className="md:hidden flex items-center gap-2">
-          {/* Mobile User Button */}
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
 
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
@@ -68,7 +61,7 @@ export const LandingPageNavbar = () => {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[250px] pt-12">
+            <SheetContent side="right" className="w-62.5 pt-12">
               <SheetTitle className="text-left mb-4">Navigation</SheetTitle>
               <nav className="flex flex-col gap-4">
                 {navLinks.map((link) => (
@@ -76,20 +69,16 @@ export const LandingPageNavbar = () => {
                     key={link.name}
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="text-lg font-medium hover:text-blue-800 transition-colors"
+                    className="text-lg font-medium ml-3 hover:text-blue-800 transition-colors"
                   >
                     {link.name}
                   </Link>
                 ))}
                 
                 {/* 3. Mobile Login Button */}
-                <SignedOut>
-                  <SignInButton mode="modal">
                     <Button variant="login" size="sm" className="mt-4 w-full" onClick={() => setIsOpen(false)}>
                       Login
                     </Button>
-                  </SignInButton>
-                </SignedOut>
               </nav>
             </SheetContent>
           </Sheet>
