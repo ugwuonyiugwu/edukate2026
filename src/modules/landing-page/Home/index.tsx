@@ -10,8 +10,7 @@ import {
 import { BookOpen, Trophy, Users, PenTool, GraduationCap, ArrowRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Facebook, FacebookIcon, LucideFacebook } from "lucide-react";
+import Link from 'next/link'
 import { Footer } from "../ui/components/footer";
 
 // Update these paths to match your files in /public/images/
@@ -64,9 +63,11 @@ export const HomePage = () => {
             Bridging the gap between potential and opportunity. Access premium educational resources designed to level the playing field for students everywhere..
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <Button size="lg" className="h-8 px-8 bg-blue-800 rounded-sm hover:bg-blue-700">
+            <Link href="/sign-up">
+              <Button size="lg" className="h-8 px-8 bg-blue-800 rounded-sm hover:bg-blue-700">
               Get Started
             </Button>
+            </Link>
           </div>
         </div>
         

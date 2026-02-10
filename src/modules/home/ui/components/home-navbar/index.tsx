@@ -14,7 +14,7 @@ import {
   SheetTitle 
 } from '@/components/ui/sheet'
 
-export const LandingPageNavbar = () => {
+export const HomeNavbar = () => {
   const [isOpen, setIsOpen] = useState(false)
 
   const navLinks = [
