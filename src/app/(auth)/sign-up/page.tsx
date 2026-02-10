@@ -29,8 +29,7 @@ const SignUpPage = () => {
     
     setError("");
     if (password !== confirmPassword) return setError("Passwords do not match.");
-    if (password.length < 8) return setError("Password too short.");
-
+    
     setIsLoading(true);
     try {
       await signUp.create({ emailAddress, password });
@@ -54,13 +53,11 @@ const SignUpPage = () => {
       const completeSignUp = await signUp.attemptEmailAddressVerification({ code });
       
       if (completeSignUp.status === "complete") {
-        // This is the critical part for redirection
+        // This 'setActive' call is essential to prevent the 422 error
         await setActive({ session: completeSignUp.createdSessionId });
         
-        // Use window.location for a hard redirect if router.push fails
-        window.location.href = "/dashboard"; 
-      } else {
-        console.error(JSON.stringify(completeSignUp, null, 2));
+        // Use window.location for a hard redirect to ensure the session is picked up
+        window.location.assign("/dashboard"); 
       }
     } catch (err: any) {
       setError(err.errors?.[0]?.longMessage || "Invalid verification code.");
@@ -71,15 +68,17 @@ const SignUpPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4 font-sans">
-      <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-2xl font-bold mb-6">EduLink</motion.h1>
+      <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-2xl font-bold text-black mb-6 tracking-tight">
+        EduLink
+      </motion.h1>
       
       <motion.div layout className="w-full max-w-85 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
         <AnimatePresence mode="wait">
           {!pendingVerification ? (
-            <motion.div key="form" exit={{ opacity: 0, x: -20 }}>
-              <div className="flex justify-around mb-6 border-b text-sm font-bold">
+            <motion.div key="form" exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+              <div className="flex justify-around mb-6 border-b border-slate-100 text-sm font-bold">
                 <Link href="/sign-in" className="pb-2 px-4 text-slate-300">Log in</Link>
-                <button className="pb-2 px-4 text-blue-600 border-b-2 border-blue-600">Sign Up</button>
+                <button className="pb-2 px-4 text-blue-600 border-b-2 border-blue-600 -mb-1px">Sign Up</button>
               </div>
 
               {error && <p className="mb-4 text-red-500 text-[10px] bg-red-50 p-2 rounded text-center italic">{error}</p>}
@@ -88,7 +87,7 @@ const SignUpPage = () => {
                 <input
                   type="email"
                   placeholder="Email"
-                  className="w-full p-2 bg-slate-50 border rounded-xl text-sm"
+                  className="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl outline-none text-sm"
                   onChange={(e) => setEmailAddress(e.target.value)}
                   required
                 />
@@ -96,7 +95,7 @@ const SignUpPage = () => {
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
-                    className="w-full p-2 bg-slate-50 border rounded-xl text-sm pr-9"
+                    className="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl outline-none text-sm pr-9"
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
@@ -107,34 +106,36 @@ const SignUpPage = () => {
                 <input
                   type="password"
                   placeholder="Confirm Password"
-                  className="w-full p-2 bg-slate-50 border rounded-xl text-sm"
+                  className="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl text-sm"
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
 
-                <Button type="submit" disabled={isLoading} className="w-full py-5 bg-blue-600 rounded-xl font-bold text-sm">
+                <Button type="submit" disabled={isLoading} className="w-full py-5 bg-blue-600 hover:bg-blue-700 rounded-xl font-bold text-sm">
                   {isLoading ? <Loader2 className="animate-spin h-4 w-4" /> : "Sign up"}
                 </Button>
                 <div id="clerk-captcha"></div>
               </form>
             </motion.div>
           ) : (
-            <motion.div key="verify" initial={{ opacity: 0, x: 20 }} className="text-center">
-              <h2 className="text-lg font-bold mb-4">Verify Email</h2>
-              <form onSubmit={onPressVerify}>
+            <motion.div key="verify" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="text-center">
+              <h2 className="text-lg font-bold text-slate-800 mb-2">Verify Email</h2>
+              <p className="text-[10px] text-slate-400 mb-6 uppercase tracking-wider">Check your inbox for the code</p>
+              
+              <form onSubmit={onPressVerify} className="space-y-4">
                 <input
                   value={code}
                   maxLength={6}
                   placeholder="000000"
-                  className="w-full p-2 bg-slate-50 border rounded-xl text-center text-xl tracking-widest font-bold mb-4"
+                  className="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl text-center text-xl tracking-[0.4em] font-bold"
                   onChange={(e) => setCode(e.target.value)}
                   required
                 />
-                <Button disabled={isLoading} type="submit" className="w-full py-5 bg-blue-600 rounded-xl font-bold">
-                  {isLoading ? <Loader2 className="animate-spin h-4 w-4 mx-auto" /> : "Verify & Log In"}
+                <Button disabled={isLoading} type="submit" className="w-full py-5 bg-blue-600 rounded-xl font-bold text-sm">
+                  {isLoading ? <Loader2 className="animate-spin h-4 w-4 mx-auto" /> : "Verify Code"}
                 </Button>
               </form>
-              {error && <p className="mt-2 text-red-500 text-xs italic">{error}</p>}
+              {error && <p className="mt-4 text-red-500 text-xs italic">{error}</p>}
             </motion.div>
           )}
         </AnimatePresence>
