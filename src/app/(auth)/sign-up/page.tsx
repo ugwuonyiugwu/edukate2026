@@ -68,7 +68,7 @@ const SignUpPage = () => {
       const completeSignUp = await signUp.attemptEmailAddressVerification({ code });
       if (completeSignUp.status === "complete") {
         await setActive({ session: completeSignUp.createdSessionId });
-        router.push("/");
+        router.push("/dashboard");
       }
     } catch (err: any) {
       setError(err.errors?.[0]?.longMessage || "Invalid code.");
