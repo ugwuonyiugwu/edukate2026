@@ -49,6 +49,9 @@ export const LandingPageNavbar = () => {
               <Button variant="login" size="sm">login</Button>
             </Link>
           </SignedOut>
+          <SignedIn>
+            
+          </SignedIn>
         </div>
 
         {/* Mobile Menu (Sheet) */}
