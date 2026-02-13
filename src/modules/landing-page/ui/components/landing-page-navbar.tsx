@@ -44,13 +44,15 @@ export const LandingPageNavbar = () => {
       <div className="flex items-center gap-4">
         {/* 2. Logic: Show Login if logged out, Show User Avatar if logged in */}
         <div className="hidden md:block">
-          <SignedOut>
+            <SignedOut>
             <Link href="/sign-in">
               <Button variant="login" size="sm">login</Button>
             </Link>
           </SignedOut>
+
+          {/* Show User Avatar if logged in */}
           <SignedIn>
-            
+            <UserButton afterSignOutUrl="/" />
           </SignedIn>
         </div>
 
