@@ -113,13 +113,12 @@ const SignInPage = () => {
                 </button>
               </div>
               <div className="text-right px-1">
-                <Link href="#" className="text-slate-400 italic text-xs hover:text-blue-500 transition-colors">
-                  forgot password?
-                </Link>
+                  <Link href="/forgot-password" className="text-slate-400 italic text-xs hover:text-blue-500 transition-colors">
+                    forgot password?
+                  </Link>
               </div>
             </div>
 
-            {/* Blue Submit Button */}
             <Button 
               disabled={isLoading}
               type="submit" 
