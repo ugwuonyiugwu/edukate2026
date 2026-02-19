@@ -1,33 +1,34 @@
 "use client"
+import { SignedIn, UserButton } from '@clerk/nextjs'
+import { SidebarTrigger } from '@/components/ui/sidebar'
+import { GraduationCap } from 'lucide-react' // Example Logo icon
 
-import Link from 'next/link'
-import Image from 'next/image'
-import {  SignedIn,  UserButton } from '@clerk/nextjs'
-import { SearchInput } from './SearchInput'
+interface NavbarProps {
+  activeTitle: string;
+}
 
-export const HomeNavbar = () => {
-
+export function HomeNavbar({ activeTitle }: NavbarProps) {
   return (
-    <nav className="fixed top-0 left-0 right-0 h-16 bg-slate-50 flex justify-between items-center px-4 md:px-8 z-50 border-b shadow-md">
-      {/* Logo Section */}
-      <Link href="/" className="flex items-center gap-1">
-        <Image src="/logo.png" alt="Logo" width={35} height={35} />
-        <p className="text-xl font-semibold tracking-tight text-blue-800">EduKate</p>
-      </Link>
-      <div>
-        <SearchInput/>
+    <nav className="flex h-16 items-center justify-between w-full px-4 md:px-8 bg-blue-600 text-white fixed top-0 z-30">
+      <div className="flex items-center gap-3">
+        {/* Mobile Menu Toggle */}
+        <SidebarTrigger className="md:hidden mr-2" />
+        
+        {/* Logo */}
+        <div className="bg-white p-1.5 rounded-lg shadow-sm">
+          <GraduationCap className="h-6 w-6 text-blue-600" />
+        </div>
+        
+        {/* Dynamic Title */}
+        <h1 className="text-xl md:text-2xl font-bold tracking-tight truncate">
+          {activeTitle}
+        </h1>
       </div>
       
-     
-
       <div className="flex items-center gap-4">
-        {/* 2. Logic: Show Login if logged out, Show User Avatar if logged in */}
-        <div className="hidden md:block">
-         
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
-        </div>
+        <SignedIn>
+          <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "h-9 w-9" } }} />
+        </SignedIn>
       </div>
     </nav>
   )

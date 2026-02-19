@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowLeft, Mail, Eye, EyeOff, RotateCcw, CheckCircle2 } from "lucide-react";
+import { Loader2, ArrowLeft, Mail, Eye, EyeOff, RotateCcw, CheckCircle2, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,9 +29,17 @@ const ForgotPasswordPage = () => {
   const [showPw, setShowPw] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [isCodeSent, setIsCodeSent] = React.useState(false);
-
-  // Timer States
   const [countdown, setCountdown] = React.useState(0);
+
+  // Password Validation States
+  const validations = {
+    length: password.length >= 6,
+    number: /[0-9]/.test(password),
+    letter: /[a-zA-Z]/.test(password),
+    symbol: /[^a-zA-Z0-9]/.test(password),
+  };
+
+  const isPasswordValid = Object.values(validations).every(Boolean);
 
   React.useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -53,13 +61,16 @@ const ForgotPasswordPage = () => {
       });
       setIsCodeSent(true);
       setCountdown(60);
-      toast.success("Code sent successfully!");
+      toast.success("Code sent!");
     } catch (err) {
-        const clerkError = err as ClerkError;
-        
-        toast.error("Error", {
-        description: clerkError.errors?.[0]?.message || "Account not found",
-      });
+       const clerkError = err as ClerkError;
+
+      if (clerkError.errors?.[0]?.code === "session_exists") {
+        toast.info("Active session detected. Please sign out first.");
+      } else {
+        toast.error("Error", { 
+          description: clerkError.errors?.[0]?.message || "Account not found." });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -68,6 +79,10 @@ const ForgotPasswordPage = () => {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoaded) return;
+
+    if (!isPasswordValid) {
+      return toast.error("Invalid Password", { description: "Please meet all requirements." });
+    }
 
     setIsLoading(true);
     try {
@@ -82,44 +97,39 @@ const ForgotPasswordPage = () => {
         toast.success("Password Updated!");
         router.push("/dashboard");
       }
-    } catch (err) {
+     } catch (err) {
         const clerkError = err as ClerkError;
         
-        toast.error("Registration Failed", {
-        description: clerkError.errors?.[0]?.message || "Something went wrong",
+        toast.error("Resent failed", {
+        description: clerkError.errors?.[0]?.message || "Invald code",
       });
-    }finally {
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50/40 px-4">
-      {/* Responsive width for larger screens */}
-      <Card className="w-full max-w-100 md:max-w-112.5 lg:max-w-100 border border-slate-100 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] rounded-[2.5rem] bg-white overflow-hidden transition-all duration-500">
+      <Card className="w-full max-w-100 md:max-w-112.5 lg:max-w-120 border border-slate-100 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] rounded-[2.5rem] bg-white overflow-hidden transition-all duration-500">
         <CardContent className="p-8 md:p-12">
           
-          <Link href="/sign-in" className="inline-flex items-center text-slate-400 hover:text-blue-600 text-sm font-medium mb-8 transition-all group">
+          <Link href="/sign-in" className="inline-flex items-center text-slate-400 hover:text-blue-600 text-sm font-medium mb-8 group">
             <ArrowLeft size={18} className="mr-2 group-hover:-translate-x-1 transition-transform" /> 
             Back to Login
           </Link>
 
           <div className="mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
               {isCodeSent ? "Verify Email" : "Reset Password"}
             </h2>
-            <div className="flex items-center gap-2 mt-3">
-               {isCodeSent && <CheckCircle2 size={16} className="text-green-500" />}
-               <p className="text-slate-500 text-sm md:text-base leading-relaxed">
-                {isCodeSent 
-                  ? `Enter the code sent to ${email.split('@')[0]}***@***.com` 
-                  : "Enter your email to receive a password reset code."}
-              </p>
-            </div>
+            <p className="text-slate-500 text-sm mt-2 leading-relaxed">
+              {isCodeSent 
+                ? `Verification code sent to ${email}` 
+                : "Enter your email to receive a password reset code."}
+            </p>
           </div>
 
           {!isCodeSent ? (
-            // STEP 1: Email Input only
             <form onSubmit={handleRequestCode} className="space-y-6">
               <div className="space-y-2">
                 <Label className="text-slate-600 font-semibold text-xs ml-1 uppercase tracking-widest">Email Address</Label>
@@ -130,7 +140,6 @@ const ForgotPasswordPage = () => {
                     type="email" 
                     placeholder="name@example.com"
                     required 
-                    value={email}
                     onChange={(e) => setEmail(e.target.value)} 
                   />
                 </div>
@@ -140,11 +149,10 @@ const ForgotPasswordPage = () => {
               </Button>
             </form>
           ) : (
-            // STEP 2: Code and New Password (Email input is removed)
             <form onSubmit={handleResetPassword} className="space-y-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-end px-1">
-                  <Label className="text-slate-600 font-semibold text-xs uppercase tracking-widest">Verification Code</Label>
+                  <Label className="text-slate-600 font-semibold text-xs uppercase tracking-widest">6-Digit Code</Label>
                   <button 
                     type="button" 
                     disabled={countdown > 0 || isLoading}
@@ -156,7 +164,7 @@ const ForgotPasswordPage = () => {
                   </button>
                 </div>
                 <Input 
-                  className="bg-slate-50 border-slate-200 h-16 rounded-2xl text-center text-3xl font-black tracking-[0.5em] focus:border-blue-500 transition-all shadow-inner"
+                  className="bg-slate-50 border-slate-200 h-16 rounded-2xl text-center text-3xl font-black tracking-[0.5em] focus:border-blue-500 transition-all"
                   type="text" 
                   maxLength={6}
                   placeholder="000000"
@@ -165,13 +173,13 @@ const ForgotPasswordPage = () => {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label className="text-slate-600 font-semibold text-xs ml-1 uppercase tracking-widest">New Password</Label>
                 <div className="relative">
                   <Input 
                     className="bg-slate-50 border-slate-200 h-14 rounded-2xl pr-12 text-lg"
                     type={showPw ? "text" : "password"} 
-                    placeholder="Min. 6 characters"
+                    placeholder="••••••••"
                     required 
                     onChange={(e) => setPassword(e.target.value)} 
                   />
@@ -179,9 +187,22 @@ const ForgotPasswordPage = () => {
                     {showPw ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
+
+                {/* Password Strength Checklist */}
+                <div className="grid grid-cols-2 gap-2 mt-2 px-1">
+                  <ValidationItem label="6+ Characters" met={validations.length} />
+                  <ValidationItem label="Letters" met={validations.letter} />
+                  <ValidationItem label="Numbers" met={validations.number} />
+                  <ValidationItem label="Symbols" met={validations.symbol} />
+                </div>
               </div>
 
-              <Button disabled={isLoading} className="w-full h-14 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold text-lg shadow-xl shadow-blue-100 transition-all active:scale-[0.98]">
+              <Button 
+                disabled={isLoading || !isPasswordValid} 
+                className={`w-full h-14 rounded-2xl font-bold text-lg shadow-xl transition-all active:scale-[0.98] ${
+                  isPasswordValid ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-100' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                }`}
+              >
                 {isLoading ? <Loader2 className="animate-spin" /> : "Update Password"}
               </Button>
             </form>
@@ -191,5 +212,13 @@ const ForgotPasswordPage = () => {
     </div>
   );
 };
+
+// Sub-component for the checklist
+const ValidationItem = ({ label, met }: { label: string; met: boolean }) => (
+  <div className={`flex items-center gap-2 text-[10px] md:text-xs transition-colors ${met ? 'text-green-600' : 'text-slate-400'}`}>
+    {met ? <CheckCircle2 size={14} /> : <Circle size={14} className="opacity-40" />}
+    {label}
+  </div>
+);
 
 export default ForgotPasswordPage;

@@ -1,9 +1,10 @@
+import DashboardPage from '@/modules/home/Dashboard'
 import React from 'react'
 
 const page = () => {
   return (
     <div className='Uppercase text-3xl'>
-      hellow world
+      <DashboardPage/>
     </div>
   )
 }

@@ -1,4 +1,5 @@
 "use client";
+
 import * as React from "react";
 import Image from "next/image";
 import Autoplay from "embla-carousel-autoplay";
@@ -7,7 +8,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { BookOpen, Trophy, Users, PenTool, GraduationCap, ArrowRight } from 'lucide-react';
+import { BookOpen, Trophy, Users, PenTool, GraduationCap } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from 'next/link'
@@ -121,9 +122,9 @@ export const HomePage = () => {
               <div className="space-y-4">
                 <div className="h-2 w-24 bg-primary rounded-full" />
                 <h3 className="text-2xl font-bold italic text-slate-200">
-                  "Knowledge is the only resource that grows when shared. Our goal is to ensure geography doesn't limit potential."
+                  &quo;Knowledge is the only resource that grows when shared. Our goal is to ensure geography doesn&apos;t limit potential.&rdquo;
                 </h3>
-                <p className="text-slate-500">— Founder's Statement</p>
+                <p className="text-slate-500">— Founder&apos;s Statement</p>
               </div>
             </div>
           </div>
