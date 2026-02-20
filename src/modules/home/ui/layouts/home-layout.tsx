@@ -9,18 +9,15 @@ export const HomeLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full flex-col">
-        {/* Pass title and setter to components */}
-        <HomeNavbar activeTitle={activeTitle} />
+      <div className="flex min-h-screen w-full bg-slate-50/50">
+        <HomeSidebar setActiveTitle={setActiveTitle} activeTitle={activeTitle} />
         
-        <div className="flex flex-1 pt-16"> {/* pt-16 accounts for fixed navbar */}
-          <HomeSidebar setActiveTitle={setActiveTitle} activeTitle={activeTitle} />
-          <SidebarInset className="flex-1 overflow-x-hidden">
-            <main className="p-4 md:p-8">
-              {children}
-            </main>
-          </SidebarInset>
-        </div>
+        <SidebarInset className="flex flex-col flex-1">
+          <HomeNavbar activeTitle={activeTitle} />
+          <main className="p-4 md:p-8">
+            {children}
+          </main>
+        </SidebarInset>
       </div>
     </SidebarProvider>
   )

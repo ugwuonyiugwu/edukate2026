@@ -3,7 +3,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div className='Uppercase text-3xl'>
+    <div className='mt-3'>
       <DashboardPage/>
     </div>
   )
