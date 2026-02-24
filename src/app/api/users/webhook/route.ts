@@ -65,7 +65,6 @@ export async function POST(req: Request) {
       clerkId: data.id,
       email: primaryEmail || "",
       username: username || "",
-      name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
       imageUrl: data.image_url,
     });
     
@@ -82,7 +81,6 @@ export async function POST(req: Request) {
       .set({
         email: primaryEmail,
         username: username,
-        name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
         imageUrl: data.image_url,
       })
       .where(eq(users.clerkId, data.id as string));
