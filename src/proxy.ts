@@ -1,21 +1,22 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// Define which routes are public (landing page, etc.)
-const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign-up(.*)', '/forgot-password(.*)']);
+// 1. Define only the routes that REQUIRE authentication
+const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
 
-  // If the user is signed in and trying to access a public route (like the landing page)
-  // Redirect them to the dashboard automatically
-  if (userId && isPublicRoute(req)) {
-    return NextResponse.redirect(new URL('/dashboard', req.url));
+  // 2. Protect only the specific routes defined above
+  if (isProtectedRoute(req)) {
+    await auth.protect();
   }
 
-  // Protect all non-public routes
-  if (!isPublicRoute(req)) {
-    await auth.protect();
+  // 3. Optional: If a user is already logged in and hits the sign-in/up pages,
+  // you might still want to redirect them to the dashboard.
+  const isAuthPage = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)']);
+  if (userId && isAuthPage(req)) {
+    return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 });
 
