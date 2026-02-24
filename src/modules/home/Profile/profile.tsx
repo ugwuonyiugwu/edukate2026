@@ -1,6 +1,5 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
 
 import { trpc } from "@/trpc/client";
 import { SignOutButton } from "@clerk/nextjs";

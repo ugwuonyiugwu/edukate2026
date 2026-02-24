@@ -2,8 +2,9 @@
 import { trpc, HydrateClient } from "@/trpc/server";
 import { ProfileForm } from "@/modules/home/Profile/profile";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProfilePage() {
-  // This starts fetching on the server immediately
   void trpc.users.getOne.prefetch();
 
   return (
