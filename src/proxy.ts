@@ -1,19 +1,24 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// 1. Define only the routes that REQUIRE authentication
+// 1. Define Protected and Public routes
 const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
+const isWebhookRoute = createRouteMatcher(['/api/users/webhook(.*)']); // Add this
 
 export default clerkMiddleware(async (auth, req) => {
+  // 2. If it's the webhook, do NOTHING. Let the route handler take over.
+  if (isWebhookRoute(req)) {
+    return NextResponse.next();
+  }
+
   const { userId } = await auth();
 
-  // 2. Protect only the specific routes defined above
+  // 3. Protect only the specific routes defined above
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
 
-  // 3. Optional: If a user is already logged in and hits the sign-in/up pages,
-  // you might still want to redirect them to the dashboard.
+  // 4. Redirect logged-in users away from auth pages
   const isAuthPage = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)']);
   if (userId && isAuthPage(req)) {
     return NextResponse.redirect(new URL('/dashboard', req.url));
@@ -22,9 +27,7 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and static files
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
     '/(api|trpc)(.*)',
   ],
 };
