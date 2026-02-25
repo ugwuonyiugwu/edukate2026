@@ -1,33 +1,41 @@
-// modules/home/Profile/server/users.ts
+// @/modules/home/Profile/server/users.ts
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { protectedProcedure, createTRPCRouter } from "@/trpc/init";
+import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 
 export const userRouter = createTRPCRouter({
   getOne: protectedProcedure.query(async ({ ctx }) => {
-    // ctx.user is already fetched in your protectedProcedure middleware
     return ctx.user;
   }),
-  update: protectedProcedure
-    .input(
-      z.object({
-        username: z.string().min(2).optional(),
-        phoneNumber: z.string().optional(),
-        state: z.string().optional(),
-        gender: z.string().optional(),
-      })
-    )
+
+  updateProfile: protectedProcedure
+    .input(z.object({
+      firstName: z.string().nullish(),
+      lastName: z.string().nullish(),
+      phoneNumber: z.string().nullish(),
+      school: z.string().nullish(),
+      gender: z.string().nullish(),
+      dateOfBirth: z.string().nullish(),
+    }))
     .mutation(async ({ ctx, input }) => {
+      // Use a guard or non-null assertion since protectedProcedure 
+      // already verified clerkUserId exists
+      if (!ctx.clerkUserId) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
       const [updatedUser] = await db
         .update(users)
         .set({
           ...input,
           updatedAt: new Date(),
         })
-        .where(eq(users.id, ctx.user.id))
+        .where(eq(users.clerkId, ctx.clerkUserId)) // Error resolved by the guard above
         .returning();
+
       return updatedUser;
     }),
 });
