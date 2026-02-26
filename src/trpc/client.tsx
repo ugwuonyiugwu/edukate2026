@@ -20,10 +20,15 @@ function getQueryClient() {
     return (clientQueryClientSingleton ??=makeQueryClient())
 }
  function getUrl() {
-    if (typeof window !== 'undefined') return '/api/trpc'; 
-    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}/api/trpc`;
+  // BROWSER (Mobile/Desktop)
+  if (typeof window !== 'undefined') {
+    // This tells the phone "look at the domain I am currently on"
+    return '/api/trpc'; 
+  }
 
-    return `http://localhost:3000/api/trpc`;
+  // SERVER SIDE (SSR)
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}/api/trpc`;
+  return 'http://localhost:3000/api/trpc';
 }
 export function TRPCProvider(
     props: Readonly<{
