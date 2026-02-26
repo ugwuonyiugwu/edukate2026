@@ -19,10 +19,10 @@ export const userRouter = createTRPCRouter({
       school: z.string().nullish(),
       gender: z.string().nullish(),
       dateOfBirth: z.string().nullish(),
+      state: z.string().nullish(),
+      dateofBirth: z.string().nullish(),
     }))
     .mutation(async ({ ctx, input }) => {
-      // Use a guard or non-null assertion since protectedProcedure 
-      // already verified clerkUserId exists
       if (!ctx.clerkUserId) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }

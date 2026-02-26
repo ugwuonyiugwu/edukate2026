@@ -14,7 +14,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // Create new svix instance
   const wh = new Webhook(SIGNING_SECRET);
 
   // Get headers
@@ -30,14 +29,11 @@ export async function POST(req: Request) {
     });
   }
 
-  // Get body
   const payload = await req.json();
   const body = JSON.stringify(payload);
 
-  // 1. Declare evt OUTSIDE the try block to fix the "Cannot find name 'evt'" error
   let evt: WebhookEvent;
 
-  // 2. Verify payload
   try {
     evt = wh.verify(body, {
       "svix-id": svix_id,
@@ -53,11 +49,9 @@ export async function POST(req: Request) {
 
   const eventType = evt.type;
 
-  // 3. Handle Sync Logic
   if (eventType === "user.created") {
     const { data } = evt;
 
-    // Extracting email and username specifically
     const primaryEmail = data.email_addresses?.[0]?.email_address;
     const username = data.username; // This comes from your username input field
 
