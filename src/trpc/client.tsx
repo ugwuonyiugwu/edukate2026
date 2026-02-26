@@ -19,13 +19,11 @@ function getQueryClient() {
     //Browser:use singleton pattern to keep the same query client
     return (clientQueryClientSingleton ??=makeQueryClient())
 }
-function getUrl() {
-    const base = (() => {
-        if (typeof window !== 'undefined') return ''; // browser should use relative url
-        if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-        return 'http://localhost:3000';
-    })();
-    return `${base}/api/trpc`;
+ function getUrl() {
+    if (typeof window !== 'undefined') return '/api/trpc'; 
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}/api/trpc`;
+
+    return `http://localhost:3000/api/trpc`;
 }
 export function TRPCProvider(
     props: Readonly<{
