@@ -146,8 +146,6 @@ const SignUpPage = () => {
               </div>
             </div>
             
-            <div id="clerk-captcha"/>
-            
             <Button 
               disabled={isLoading || !isPasswordValid}
               className={`w-full h-12 rounded-xl font-bold shadow-lg transition-all active:scale-95 mt-4 ${
