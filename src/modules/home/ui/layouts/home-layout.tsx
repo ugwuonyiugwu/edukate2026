@@ -14,7 +14,7 @@ export const HomeLayout = ({ children }: { children: React.ReactNode }) => {
         
         <SidebarInset className="flex flex-col flex-1">
           <HomeNavbar activeTitle={activeTitle} />
-          <main className="p-4 md:p-8">
+          <main >
             {children}
           </main>
         </SidebarInset>

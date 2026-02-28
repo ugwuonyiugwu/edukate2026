@@ -1,11 +1,11 @@
-import DashboardPage from '@/modules/home/Dashboard'
-import React from 'react'
+import { DashboardView } from '@/modules/home/Dashboard'
+import { HydrateClient } from '@/trpc/server'
 
 const page = () => {
   return (
-    <div className='mt-3'>
-      <DashboardPage/>
-    </div>
+    <HydrateClient>
+      <DashboardView/>
+    </HydrateClient>
   )
 }
 

@@ -28,13 +28,10 @@ export const ProfileForm = () => {
   });
 
   return (
-    /* Mobile: bg-white (seamless with card), p-0 (full width)
-       Desktop: bg-gray-100/50, py-10 (spaced out) 
-    */
+   
     <div className="min-h-screen bg-white sm:bg-gray-100/50 sm:py-10"> 
       <div className="max-w-2xl mx-auto bg-white sm:shadow-md sm:rounded-3xl sm:border border-gray-100 overflow-hidden">
         
-        {/* Inner Padding - Adjusts for mobile */}
         <div className="p-5 sm:p-10">
           
           {/* Profile Header */}
