@@ -54,8 +54,8 @@ export const ProfileForm = () => {
             </h2>
 
             <div className="mt-2 flex items-center gap-2 bg-yellow-50 text-yellow-700 px-4 py-1 rounded-full border border-yellow-200">
-              <Coins size={14} className="text-yellow-600" />
-              <span className="text-xs sm:text-sm font-bold">{user?.points ?? 0} Points</span>
+              <span className="text-2xl sm:text-2xl text-blue-700 font-bold">{user?.points ?? 0} </span>
+               <span className="text-xl ">💎</span>
             </div>
           </div>
 

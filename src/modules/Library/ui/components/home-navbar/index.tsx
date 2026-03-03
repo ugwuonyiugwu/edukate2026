@@ -11,7 +11,7 @@ export function HomeNavbar({ activeTitle }: HomeNavbarProps) {
     <nav className="flex h-16 items-center justify-between w-full px-4 md:px-8 bg-blue-600 border-b border-slate-100 sticky top-0 z-40">
       <div className="flex items-center gap-4">
         {/* Only show trigger on mobile since sidebar is permanent on desktop */}
-        <SidebarTrigger className="text-white" />
+        <SidebarTrigger className="md: text-white" />
         
         <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight">
           {activeTitle}

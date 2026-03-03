@@ -156,22 +156,22 @@ export function DashboardView() {
           {/* Streak Card */}
           <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-xl shadow-gray-100">
             <div className="flex items-center gap-2 mb-4 text-blue-600">
-              <span className="font-semibold">Streak</span>
+              <span className="font-semibold">My library</span>
             </div>
             <div className="flex items-end gap-3">
               <span className="text-3xl font-bold text-blue-600">23</span>
-              <p className="text-[10px] text-gray-400 leading-tight pb-1">Your longest streak is 64 days</p>
+              <p className="text-[10px] text-gray-400 leading-tight pb-1">Your have 15 books</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Two Column Bottom Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div className="grid grid-row-1 md:grid-row-2 gap-10">
         {/* Recents List */}
         <section>
           <h3 className="text-lg font-bold mb-4">Recents</h3>
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-amber-600 border border-gray-100 rounded-2xl shadow-sm overflow-hidden w-full">
             {recentItems.map((item, idx) => (
               <div key={item.id} className={`flex items-center p-4 gap-4 ${idx !== recentItems.length - 1 ? 'border-b border-gray-50' : ''}`}>
                 <span className={`text-xl font-black w-8 ${item.color}`}>{item.initial}</span>
