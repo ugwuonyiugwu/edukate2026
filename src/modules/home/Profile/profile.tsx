@@ -1,7 +1,7 @@
 'use client';
 import { trpc } from "@/trpc/client";
 import { useForm } from "react-hook-form";
-import { Camera, Coins, MapPin } from "lucide-react";
+import { Camera, MapPin } from "lucide-react";
 import Image from "next/image";
 
 export const ProfileForm = () => {

@@ -1,4 +1,4 @@
- import { db } from '@/db';
+import { db } from '@/db';
 import { users } from '@/db/schema';
 import { ratelimit } from '@/lib/ratelimit';
 import { auth } from '@clerk/nextjs/server';
@@ -45,6 +45,7 @@ export const protectedProcedure = t.procedure.use(async function isAuthed(opts) 
     }
  return opts.next({
     ctx:{
+        db,
         ...ctx,
         user,
     }

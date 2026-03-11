@@ -4,6 +4,7 @@ import { BookOpen, Trophy, GraduationCap, ArrowLeft, ArrowRight } from "lucide-r
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { useCallback, useEffect, useState } from 'react';
+import Link from "next/link";
 
 interface CarouselFrameProps {
   children: React.ReactNode;
@@ -154,7 +155,9 @@ export function DashboardView() {
           </div>
 
           {/* Streak Card */}
-          <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-xl shadow-gray-100">
+          <Link href="/library">
+
+             <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-xl shadow-gray-100">
             <div className="flex items-center gap-2 mb-4 text-blue-600">
               <span className="font-semibold">My library</span>
             </div>
@@ -163,6 +166,9 @@ export function DashboardView() {
               <p className="text-[10px] text-gray-400 leading-tight pb-1">Your have 15 books</p>
             </div>
           </div>
+
+          </Link>
+         
         </div>
       </section>
 

@@ -1,5 +1,5 @@
 // @/db/schema.ts
-import { pgTable, text, timestamp, uuid, integer, uniqueIndex, date } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, integer, uniqueIndex, date, serial } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -22,3 +22,17 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (t) => [uniqueIndex("clerk_id_idx").on(t.clerkId)]);
+
+export const documents = pgTable("documents", {
+  id: serial("id").primaryKey(),
+  clerkId: text("clerk_id").notNull(),
+  name: text("name").notNull(),
+  subject: text("subject").notNull(),
+  description: text("description").notNull(),
+  fileUrl: text("file_url").notNull(),
+  thumbnailUrl: text("thumbnail_url"),
+  // ADD THESE TWO LINES:
+  views: integer("views").notNull().default(0),
+  likes: integer("likes").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});

@@ -1,22 +1,21 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /** @type {import('next').NextConfig} */
-
-   images: {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'your-upload-service.com', // e.g., 'ucarecdn.com' or 'res.cloudinary.com'
+        protocol: "https",
+        hostname: "img.clerk.com", // For your user profile pictures
       },
-      // Keep Clerk whitelisted if you still use their default avatars as fallbacks
       {
-        protocol: 'https',
-        hostname: 'img.clerk.com',
+        protocol: "https",
+        hostname: "utfs.io", // For older UploadThing URLs
+      },
+      {
+        protocol: "https",
+        hostname: "*.ufs.sh", // For the new UploadThing CDN (Fixes your error)
       },
     ],
   },
-  reactCompiler: true,
 };
 
 export default nextConfig;

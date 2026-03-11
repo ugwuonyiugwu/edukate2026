@@ -1,10 +1,13 @@
+import { LibraryPage } from '@/modules/Library'
+import { HydrateClient } from '@/trpc/server'
 import React from 'react'
 
 const page = () => {
   return (
-    <div>
-      my library
-    </div>
+    <HydrateClient>
+       <LibraryPage/>
+    </HydrateClient>
+   
   )
 }
 
