@@ -1,5 +1,6 @@
 // @/db/schema.ts
 import { pgTable, text, timestamp, uuid, integer, uniqueIndex, date, serial } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -23,6 +24,16 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (t) => [uniqueIndex("clerk_id_idx").on(t.clerkId)]);
 
+// --- NEW TABLE: LIBRARIES ---
+export const libraries = pgTable("libraries", {
+  id: serial("id").primaryKey(),
+  clerkId: text("clerk_id").notNull().unique(), // One library per user
+  name: text("name").notNull(),
+  thumbnailUrl: text("thumbnail_url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
   clerkId: text("clerk_id").notNull(),
@@ -31,8 +42,21 @@ export const documents = pgTable("documents", {
   description: text("description").notNull(),
   fileUrl: text("file_url").notNull(),
   thumbnailUrl: text("thumbnail_url"),
-  // ADD THESE TWO LINES:
   views: integer("views").notNull().default(0),
   likes: integer("likes").notNull().default(0),
+  // LINK DOCUMENTS TO LIBRARY
+  libraryId: integer("library_id").references(() => libraries.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// --- RELATIONSHIPS (For easy counting/fetching) ---
+export const libraryRelations = relations(libraries, ({ many }) => ({
+  documents: many(documents),
+}));
+
+export const documentRelations = relations(documents, ({ one }) => ({
+  library: one(libraries, {
+    fields: [documents.libraryId],
+    references: [libraries.id],
+  }),
+}));

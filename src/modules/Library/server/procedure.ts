@@ -1,14 +1,109 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
-import { documents } from "@/db/schema";
+import { documents, libraries } from "@/db/schema";
 import { TRPCError } from "@trpc/server";
 import { eq, desc, and } from "drizzle-orm";
 import { UTApi } from "uploadthing/server";
 
 const utapi = new UTApi();
 
-// This MUST have the 'export' keyword
+// Helper to extract UploadThing keys for deletion
+const extractKey = (url: string | null | undefined) => {
+  if (!url) return null;
+  return url.includes("/f/") ? url.split("/f/")[1] : url.split("/").pop();
+};
+
 export const documentRouter = createTRPCRouter({
+  // --- LIBRARY PROCEDURES ---
+
+  getLibrary: protectedProcedure.query(async ({ ctx }) => {
+    const lib = await ctx.db.query.libraries.findFirst({
+      where: eq(libraries.clerkId, ctx.user.id),
+      with: { documents: true }
+    });
+    return lib ?? null;
+  }),
+
+  createLibrary: protectedProcedure
+    .input(z.object({
+      name: z.string().min(1),
+      thumbnailUrl: z.string().url().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const [newLib] = await ctx.db.insert(libraries).values({
+        clerkId: ctx.user.id,
+        name: input.name,
+        thumbnailUrl: input.thumbnailUrl ?? null,
+      }).returning();
+      return newLib;
+    }),
+
+  updateLibrary: protectedProcedure
+    .input(z.object({
+      name: z.string().min(1).optional(),
+      thumbnailUrl: z.string().url().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const [updatedLib] = await ctx.db
+        .update(libraries)
+        .set({
+          ...(input.name && { name: input.name }),
+          ...(input.thumbnailUrl && { thumbnailUrl: input.thumbnailUrl }),
+          updatedAt: new Date(),
+        })
+        .where(eq(libraries.clerkId, ctx.user.id))
+        .returning();
+
+      if (!updatedLib) throw new TRPCError({ code: "NOT_FOUND" });
+      return updatedLib;
+    }),
+
+  deleteLibrary: protectedProcedure.mutation(async ({ ctx }) => {
+    // 1. Fetch the library WITH all its documents to get their file URLs
+    const libWithDocs = await ctx.db.query.libraries.findFirst({
+      where: eq(libraries.clerkId, ctx.user.id),
+      with: { documents: true }
+    });
+
+    if (!libWithDocs) throw new TRPCError({ code: "NOT_FOUND" });
+
+    // 2. Collect all keys (Library thumb + all Document files + all Document thumbs)
+    const keysToDelete: string[] = [];
+
+    // Add library thumbnail
+    const libThumbKey = extractKey(libWithDocs.thumbnailUrl);
+    if (libThumbKey) keysToDelete.push(libThumbKey);
+
+    // Add all document files and thumbnails
+    libWithDocs.documents.forEach((doc) => {
+      const fileKey = extractKey(doc.fileUrl);
+      if (fileKey) keysToDelete.push(fileKey);
+      
+      const docThumbKey = extractKey(doc.thumbnailUrl);
+      if (docThumbKey) keysToDelete.push(docThumbKey);
+    });
+
+    // 3. Batch delete from UploadThing
+    if (keysToDelete.length > 0) {
+      try {
+        await utapi.deleteFiles(keysToDelete);
+      } catch (error) {
+        console.error("UPLOADTHING_DELETE_ERROR:", error);
+        // We continue anyway to ensure the DB is cleaned up
+      }
+    }
+
+    // 4. Delete from DB (Documents will cascade delete automatically)
+    const [deleted] = await ctx.db
+      .delete(libraries)
+      .where(eq(libraries.id, libWithDocs.id))
+      .returning();
+
+    return deleted;
+  }),
+
+  // --- EXISTING DOCUMENT PROCEDURES ---
+
   getMyDocuments: protectedProcedure.query(async ({ ctx }) => {
     try {
       return await ctx.db
@@ -31,6 +126,10 @@ export const documentRouter = createTRPCRouter({
       thumbnailUrl: z.string().url().optional().nullable(),
     }))
     .mutation(async ({ ctx, input }) => {
+      const lib = await ctx.db.query.libraries.findFirst({
+        where: eq(libraries.clerkId, ctx.user.id)
+      });
+
       const [newDoc] = await ctx.db.insert(documents).values({
         clerkId: ctx.user.id,
         name: input.name,
@@ -38,6 +137,7 @@ export const documentRouter = createTRPCRouter({
         description: input.description,
         fileUrl: input.fileUrl,
         thumbnailUrl: input.thumbnailUrl ?? null,
+        libraryId: lib?.id ?? null,
       }).returning();
       return newDoc;
     }),
@@ -52,11 +152,11 @@ export const documentRouter = createTRPCRouter({
 
       if (!doc) throw new TRPCError({ code: "NOT_FOUND" });
 
-      const extractKey = (url: string) => url.includes("/f/") ? url.split("/f/")[1] : url.split("/").pop();
       const keys = [extractKey(doc.fileUrl)];
-      if (doc.thumbnailUrl) keys.push(extractKey(doc.thumbnailUrl)!);
+      const thumbKey = extractKey(doc.thumbnailUrl);
+      if (thumbKey) keys.push(thumbKey);
 
-      await utapi.deleteFiles(keys.filter(Boolean) as string[]);
+      await utapi.deleteFiles(keys.filter((k): k is string => !!k));
       
       const [deletedDoc] = await ctx.db.delete(documents).where(eq(documents.id, input.id)).returning();
       return deletedDoc;

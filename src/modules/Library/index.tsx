@@ -6,11 +6,18 @@ import { UploadSheet } from "@/components/reusableupload/upoadsheet";
 import { DocumentMetadataForm } from "@/components/reusableDocumentMetadata/documentmetadata";
 import { 
   FileText, LogOut, Plus, ArrowLeft, 
-  Loader2, Edit3, Trash2
+  Loader2, Edit3, Trash2, Settings2, Image as ImageIcon
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
+import { 
+  Dialog, DialogContent, DialogHeader, 
+  DialogTitle, DialogDescription 
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { UploadButton } from "@/app/utils/uploadthing";
 
 export interface DocumentType {
   id: number;
@@ -27,12 +34,36 @@ export interface DocumentType {
 
 export const LibraryPage = () => {
   const utils = trpc.useUtils();
+  const router = useRouter();
+  
+  // Data Fetching
   const { data: user } = trpc.users.getOne.useQuery();
+  const { data: library, isLoading: isLibLoading } = trpc.documents.getLibrary.useQuery();
   const { data: realDocuments, isLoading: isDocsLoading } = trpc.documents.getMyDocuments.useQuery();
   
+  // State
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
   const [editingDoc, setEditingDoc] = useState<DocumentType | null>(null);
+  
+  // Library Edit State
+  const [isEditLibOpen, setIsEditLibOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editThumb, setEditThumb] = useState<string | null>(null);
+
+  // Mutations
+  const updateLibMutation = trpc.documents.updateLibrary.useMutation({
+    onSuccess: () => {
+      utils.documents.getLibrary.invalidate();
+      setIsEditLibOpen(false);
+    }
+  });
+
+  const deleteLibMutation = trpc.documents.deleteLibrary.useMutation({
+    onSuccess: () => {
+      router.push("/dashboard");
+    }
+  });
 
   const handleUploadComplete = (url: string) => {
     setUploadedFileUrl(url);
@@ -45,21 +76,26 @@ export const LibraryPage = () => {
     utils.documents.getMyDocuments.invalidate();
   };
 
-  const deleteMutation = trpc.documents.delete.useMutation({
+  const deleteDocMutation = trpc.documents.delete.useMutation({
     onSuccess: () => utils.documents.getMyDocuments.invalidate(),
     onError: (err) => alert(err.message),
   });
 
+  const openEditLibrary = () => {
+    if (library) {
+      setEditName(library.name);
+      setEditThumb(library.thumbnailUrl);
+      setIsEditLibOpen(true);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F9FAFB] flex flex-col">
+      {/* Navigation Bar */}
       <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 md:px-8 py-3 flex justify-between items-center shadow-sm">
         <div className="flex items-center gap-3">
-          <div>
-            <Image src="/logo.png" alt="logo" width={35} height={35} />
-          </div>
-          <span className="font-bold text-xl text-blue-700 tracking-tight">
-            EduKate
-          </span>
+          <Image src="/logo.png" alt="logo" width={35} height={35} />
+          <span className="font-bold text-xl text-blue-700 tracking-tight">EduKate</span>
         </div>
         
         {(!uploadedFileUrl && !editingDoc) && (
@@ -71,12 +107,12 @@ export const LibraryPage = () => {
             >
               <Plus size={16} /> <span className="hidden md:inline">Upload</span>
             </Button>
-
           </div>
         )}
       </nav>
       
       <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
         {(!uploadedFileUrl && !editingDoc) && (
           <aside className="w-64 border-r border-gray-200 hidden lg:flex flex-col p-6 bg-white shrink-0">
             <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-gray-50 mb-6 border border-gray-100">
@@ -103,7 +139,7 @@ export const LibraryPage = () => {
                   onClick={() => { setUploadedFileUrl(null); setEditingDoc(null); }} 
                   className="mb-6 flex items-center gap-2 text-gray-500 hover:text-blue-600 font-bold text-xs md:text-sm"
                 >
-                  <ArrowLeft size={16} /> Back to Dashboard
+                  <ArrowLeft size={16} /> Back to Library
                 </button>
                 <DocumentMetadataForm 
                   fileUrl={uploadedFileUrl || editingDoc?.fileUrl || ""} 
@@ -113,11 +149,32 @@ export const LibraryPage = () => {
               </div>
             ) : (
               <>
-                <div className="mb-6">
-                  <h1 className="text-xl md:text-3xl font-black text-gray-900 tracking-tight">Content Library</h1>
-                  <p className="text-xs md:text-base text-gray-500 font-medium">Manage your educational assets.</p>
+                {/* DYNAMIC LIBRARY HEADER */}
+                <div className="flex flex-row md:flex-row md:items-end justify-between gap-4 p-6 ">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h3 className="text-sm md:text-2xl font-black text-gray-900 tracking-tight leading-none">
+                        {isLibLoading ? <Loader2 className="animate-spin inline" /> : (library?.name || "My Library")}
+                      </h3>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" onClick={openEditLibrary} className="rounded-full hover:bg-gray-100 text-gray-500 font-bold">
+                      <Settings2 size={16} className="mr-2" /> Edit Library
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => confirm("Delete library and all books?") && deleteLibMutation.mutate()} 
+                      className="rounded-full hover:bg-red-50 text-red-400 hover:text-red-600 font-bold"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
                 </div>
 
+                {/* DOCUMENTS TABLE */}
                 <div className="bg-white border border-gray-200 shadow-xl overflow-hidden">
                   <div className="overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left border-collapse">
@@ -158,11 +215,11 @@ export const LibraryPage = () => {
                                     <Edit3 size={16} />
                                   </button>
                                   <button 
-                                    onClick={() => confirm("Delete this document?") && deleteMutation.mutate({ id: doc.id })} 
-                                    className="p-1.5 text-gray-400 hover:text-red-600 transition-all disabled:opacity-30"
-                                    disabled={deleteMutation.isPending}
+                                    onClick={() => confirm("Delete this document?") && deleteDocMutation.mutate({ id: doc.id })} 
+                                    className="p-1.5 text-gray-400 hover:text-red-600 transition-all"
+                                    disabled={deleteDocMutation.isPending}
                                   >
-                                    {deleteMutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
+                                    {deleteDocMutation.isPending ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
                                   </button>
                                 </div>
                               </td>
@@ -178,6 +235,43 @@ export const LibraryPage = () => {
           </div>
         </main>
       </div>
+
+      {/* EDIT LIBRARY DIALOG */}
+      <Dialog open={isEditLibOpen} onOpenChange={setIsEditLibOpen}>
+        <DialogContent className="sm:max-w-[425px] rounded-[32px] p-8">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black">Edit Library</DialogTitle>
+            <DialogDescription>Update your library identity.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-6 py-4">
+            <div className="w-full h-40 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden relative group">
+              {editThumb ? (
+                <>
+                  <Image src={editThumb} alt="Preview" fill className="object-cover" />
+                  <button onClick={() => setEditThumb(null)} className="absolute inset-0 bg-black/40 text-white font-bold opacity-0 group-hover:opacity-100 transition-opacity">Change Image</button>
+                </>
+              ) : (
+                <UploadButton
+                  endpoint="libraryThumbnailUploader"
+                  onClientUploadComplete={(res) => setEditThumb(res[0].url)}
+                />
+              )}
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 pl-1">Name</label>
+              <Input value={editName} onChange={(e) => setEditName(e.target.value)} className="rounded-xl border-gray-100 bg-gray-50" />
+            </div>
+          </div>
+          <Button 
+            disabled={updateLibMutation.isPending} 
+            onClick={() => updateLibMutation.mutate({ name: editName, thumbnailUrl: editThumb ?? undefined })}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 rounded-2xl"
+          >
+            {updateLibMutation.isPending ? <Loader2 className="animate-spin" /> : "Save Changes"}
+          </Button>
+        </DialogContent>
+      </Dialog>
+
       <UploadSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} onUploadComplete={handleUploadComplete} />
     </div>
   );
