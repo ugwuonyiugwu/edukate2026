@@ -35,7 +35,7 @@ interface HomeSidebarProps {
 const navItems = [
   { title: "Dashboard", icon: LayoutDashboard, url: "/dashboard" },
   { title: "User Profile", icon: User, url: "/profile" },
-  { title: "Library", icon: Library, url: "/dashboard/library" },
+  { title: "Library", icon: Library, url: "/libraries" },
   { title: "Quizathon", icon: Trophy, url: "/dashboard/quizathon" },
   { title: "Scholarship", icon: GraduationCap, url: "/dashboard/scholarship" },
   { title: "Notification", icon: Bell, url: "/dashboard/notifications" },

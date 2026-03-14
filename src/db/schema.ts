@@ -42,7 +42,7 @@ export const documents = pgTable("documents", {
   description: text("description").notNull(),
   fileUrl: text("file_url").notNull(),
   thumbnailUrl: text("thumbnail_url"),
-  views: integer("views").notNull().default(0),
+  downloads: integer("dowloads").notNull().default(0),
   likes: integer("likes").notNull().default(0),
   // LINK DOCUMENTS TO LIBRARY
   libraryId: integer("library_id").references(() => libraries.id, { onDelete: "cascade" }),

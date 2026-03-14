@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { createTRPCRouter, protectedProcedure, baseProcedure } from "@/trpc/init";
 import { documents, libraries } from "@/db/schema";
 import { TRPCError } from "@trpc/server";
 import { eq, desc, and } from "drizzle-orm";
@@ -15,6 +15,21 @@ const extractKey = (url: string | null | undefined) => {
 
 export const documentRouter = createTRPCRouter({
   // --- LIBRARY PROCEDURES ---
+
+  getAllLibraries: baseProcedure.query(async ({ ctx }) => {
+    const allLibs = await ctx.db.query.libraries.findMany({
+      with: {
+        documents: true, 
+      },
+      orderBy: [desc(libraries.createdAt)],
+    });
+
+    // Map the results to calculate cumulative downloads while preserving the documents array
+    return allLibs.map((lib) => ({
+      ...lib,
+      totalDownloads: lib.documents.reduce((acc, doc) => acc + (doc.downloads || 0), 0),
+    }));
+  }),
 
   getLibrary: protectedProcedure.query(async ({ ctx }) => {
     const lib = await ctx.db.query.libraries.findFirst({
@@ -59,7 +74,6 @@ export const documentRouter = createTRPCRouter({
     }),
 
   deleteLibrary: protectedProcedure.mutation(async ({ ctx }) => {
-    // 1. Fetch the library WITH all its documents to get their file URLs
     const libWithDocs = await ctx.db.query.libraries.findFirst({
       where: eq(libraries.clerkId, ctx.user.id),
       with: { documents: true }
@@ -67,14 +81,10 @@ export const documentRouter = createTRPCRouter({
 
     if (!libWithDocs) throw new TRPCError({ code: "NOT_FOUND" });
 
-    // 2. Collect all keys (Library thumb + all Document files + all Document thumbs)
     const keysToDelete: string[] = [];
-
-    // Add library thumbnail
     const libThumbKey = extractKey(libWithDocs.thumbnailUrl);
     if (libThumbKey) keysToDelete.push(libThumbKey);
 
-    // Add all document files and thumbnails
     libWithDocs.documents.forEach((doc) => {
       const fileKey = extractKey(doc.fileUrl);
       if (fileKey) keysToDelete.push(fileKey);
@@ -83,17 +93,14 @@ export const documentRouter = createTRPCRouter({
       if (docThumbKey) keysToDelete.push(docThumbKey);
     });
 
-    // 3. Batch delete from UploadThing
     if (keysToDelete.length > 0) {
       try {
         await utapi.deleteFiles(keysToDelete);
       } catch (error) {
-        console.error("UPLOADTHING_DELETE_ERROR:", error);
-        // We continue anyway to ensure the DB is cleaned up
+        console.error("UT_DELETE_ERROR:", error);
       }
     }
 
-    // 4. Delete from DB (Documents will cascade delete automatically)
     const [deleted] = await ctx.db
       .delete(libraries)
       .where(eq(libraries.id, libWithDocs.id))

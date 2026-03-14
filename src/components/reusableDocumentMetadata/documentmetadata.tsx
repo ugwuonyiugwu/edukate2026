@@ -15,7 +15,7 @@ interface DocumentType {
   description: string;
   fileUrl: string;
   thumbnailUrl: string | null;
-  views: number;
+  downloads: number;
   likes: number;
   createdAt: Date | string | null;
 }
