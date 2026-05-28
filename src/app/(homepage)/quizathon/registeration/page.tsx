@@ -3,6 +3,8 @@ import { trpc, HydrateClient } from "@/trpc/server";
 import { SubjectSelectionForm } from "@/modules/home/Quizathon/quizRegistration";
 import { Suspense } from "react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function RegistrationPage() {
   void trpc.userquizathon.getLatestEvent.prefetch();
 

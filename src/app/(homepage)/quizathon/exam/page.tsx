@@ -3,18 +3,18 @@ import { HydrateClient, trpc } from "@/trpc/server";
 import { LiveExamPortal } from "@/modules/home/Quizathon/quizexam";
 import { Loader2, ShieldAlert } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function QuizDashboardPage() {
   try {
     await trpc.userquizathon.getLiveExamQuestions.prefetch();
     await trpc.userquizathon.getUserRegistrations.prefetch();
 
-    // 2. Fetch the data right here in the parent block to catch expirations BEFORE rendering children
     const [examPayload, userRegistrations] = await Promise.all([
       trpc.userquizathon.getLiveExamQuestions(),
       trpc.userquizathon.getUserRegistrations(),
     ]);
 
-    // 3. Extract properties safely
     const { categorizedQuestions, secondsRemaining } = examPayload ?? {
       categorizedQuestions: {},
       secondsRemaining: 0,
@@ -25,7 +25,7 @@ export default async function QuizDashboardPage() {
 
     return (
       <HydrateClient>
-        <Suspense fallback={<QuizDashboardSkeleton />}>
+        <Suspense fallback={"Loadind.."}>
           <LiveExamPortal 
             quizEventId={quizEventId}
             initialSecondsRemaining={secondsRemaining}
@@ -37,7 +37,6 @@ export default async function QuizDashboardPage() {
     );
 
   } catch (error: any) {
-    // 4. This block now successfully intercepts the server-side tRPC expiration lock!
     const errorMessage = error?.message || "The examination link cannot be reached.";
     const isLocked = errorMessage.toLowerCase().includes("lock") || errorMessage.toLowerCase().includes("not arrived");
 
@@ -67,20 +66,4 @@ export default async function QuizDashboardPage() {
   }
 }
 
-function QuizDashboardSkeleton() {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6">
-      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl max-w-md w-full text-center space-y-4 flex flex-col items-center">
-        <Loader2 className="w-10 h-10 animate-spin text-emerald-600" />
-        <div>
-          <h2 className="text-sm font-black text-slate-700 tracking-wide uppercase">
-            Loading Secure Session
-          </h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Establishing synchronized server clock handshake...
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
+// ... rest of your code
