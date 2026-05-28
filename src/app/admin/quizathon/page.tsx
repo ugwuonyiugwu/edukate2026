@@ -3,6 +3,8 @@ import { AdminQuizClient } from "@/modules/Admin/AdminQuizathon/AdminQuizclient"
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminQuizPage() {
   void trpc.userquizathon.getLatestEvent.prefetch();
   void trpc.adminquizathon.getRegistrations.prefetch();

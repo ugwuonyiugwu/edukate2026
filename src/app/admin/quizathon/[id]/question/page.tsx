@@ -2,6 +2,8 @@ import { QuizQuestionsView } from "@/modules/Admin/AdminQuizathon/Components/Que
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const quizId = Number(id);
