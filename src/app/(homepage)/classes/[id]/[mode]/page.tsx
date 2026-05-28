@@ -1,5 +1,5 @@
 import { HydrateClient, trpc } from "@/trpc/server";
-import { ExamSession } from "@/modules/home/Classes/Classview/ExamSession";
+import { LiveExamPortal } from "@/modules/home/Classes/Classview/ExamSession";
 import { Suspense } from "react";
 
 export default async function Page(props: { 
@@ -13,7 +13,7 @@ export default async function Page(props: {
   return (
     <HydrateClient>
       <Suspense fallback={<div className="h-screen flex items-center justify-center">Loading...</div>}>
-        <ExamSession classId={id} mode={mode} />
+        <LiveExamPortal classId={id} mode={mode} />
       </Suspense>
     </HydrateClient>
   );

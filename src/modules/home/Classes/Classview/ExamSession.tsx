@@ -11,18 +11,22 @@ interface Question {
   subject: string;
 }
 
+// Updated interface to include classId and mode
 interface LiveExamPortalProps {
-  // Receives data structured as: { "Math": [...], "Physics": [...] }
   categorizedQuestions?: Record<string, Question[]>;
   onSubmitExam?: (answers: Record<number, string>) => void;
   isSubmitting?: boolean;
+  classId: string;
+  mode: "practice" | "exam";
 }
 
-export function LiveExamPortal({
+export const LiveExamPortal = ({
   categorizedQuestions = {},
   onSubmitExam,
   isSubmitting = false,
-}: LiveExamPortalProps) {
+  classId, // Now destructured
+  mode,    // Now destructured
+}: LiveExamPortalProps) => {
   const registeredSubjects = Object.keys(categorizedQuestions);
   
   // States to monitor active subject tab and corresponding indices
@@ -30,6 +34,8 @@ export function LiveExamPortal({
   const [subjectIndices, setSubjectIndices] = useState<Record<string, number>>({});
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
 
+  // ... rest of your existing logic remains exactly the same ...
+  
   if (registeredSubjects.length === 0) {
     return (
       <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center">
@@ -38,7 +44,6 @@ export function LiveExamPortal({
     );
   }
 
-  // Fallback safe assignment parameters
   const currentQuestionsList = categorizedQuestions[activeSubject] || [];
   const currentIndex = subjectIndices[activeSubject] || 0;
   const currentQuestion = currentQuestionsList[currentIndex];
@@ -85,10 +90,12 @@ export function LiveExamPortal({
         <div className="max-w-[1200px] w-full mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-[#009b72]">
             <BookOpen className="w-5 h-5 stroke-[2.5]" />
-            <span className="font-extrabold text-sm uppercase tracking-wider">Exam Tracks</span>
+            <span className="font-extrabold text-sm uppercase tracking-wider">
+              {mode === "practice" ? "Practice Mode" : "Examination"} 
+              <span className="text-slate-400 font-normal ml-2">({classId})</span>
+            </span>
           </div>
           
-          {/* Categorized switcher buttons matching user registrations */}
           <div className="grid grid-cols-2 md:flex items-center gap-2">
             {registeredSubjects.map((subject) => {
               const isActive = subject === activeSubject;
@@ -126,7 +133,6 @@ export function LiveExamPortal({
         {currentQuestion ? (
           <div className="bg-white rounded-lg border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] p-8 md:p-12 min-h-[450px] flex flex-col justify-between">
             
-            {/* Question Text / Rendered Image Space */}
             <div className="mb-10">
               <span className="text-xs font-extrabold tracking-widest text-[#009b72] uppercase block mb-2">
                 {activeSubject} — Question {currentIndex + 1}
@@ -143,7 +149,6 @@ export function LiveExamPortal({
               )}
             </div>
 
-            {/* Interactive Multiple Choice Stack */}
             <div className="space-y-4 max-w-md">
               {currentQuestion.options.map((option, idx) => {
                 const prefix = optionPrefixes[idx];
@@ -159,14 +164,11 @@ export function LiveExamPortal({
                     <span className="text-sm font-semibold text-slate-400 w-6">
                       ({prefix})
                     </span>
-                    
-                    {/* Custom Radio Indicator Circle matching file "aaaaaaaaaa.jpg" */}
                     <div className={`w-[18px] h-[18px] rounded-full border flex items-center justify-center shrink-0 transition-all ${
                       isSelected 
                         ? "border-[#009b72] bg-white shadow-[inset_0_0_0_2px_#fff,inset_0_0_0_6px_#009b72]" 
                         : "border-slate-300 bg-white group-hover:border-slate-400"
                     }`} />
-                    
                     <span className="text-base text-slate-800 font-medium pl-1">
                       {option}
                     </span>
@@ -182,23 +184,19 @@ export function LiveExamPortal({
         )}
       </main>
 
-      {/* --- Global Action Controls (Sticky Footer Layout matching aaaaaaaaaa.jpg) --- */}
+      {/* --- Footer remains same --- */}
       <footer className="w-full bg-white border-t border-slate-200/80 py-4 mt-8 sticky bottom-0 z-20">
         <div className="max-w-[1200px] w-full mx-auto px-4 flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
-          
-          {/* Submit Action Left Anchor */}
           <div className="order-2 sm:order-1 flex justify-start">
             <button
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="bg-[#009b72] hover:bg-[#008561] text-white font-extrabouter text-xs uppercase tracking-wider px-6 h-10 rounded-md shadow-sm transition-colors duration-150 disabled:opacity-50"
+              className="bg-[#009b72] hover:bg-[#008561] text-white font-extrabold text-xs uppercase tracking-wider px-6 h-10 rounded-md shadow-sm transition-colors duration-150 disabled:opacity-50"
             >
               {isSubmitting ? "Submitting..." : "Submit Examination"}
             </button>
           </div>
-
-          {/* Pagination Matrix Dot Hub Center (Contextual to Active Subject Track) */}
           <div className="order-1 sm:order-2 flex justify-center items-center gap-2 flex-wrap">
             {currentQuestionsList.map((q, idx) => {
               const isCurrent = idx === currentIndex;
@@ -222,8 +220,6 @@ export function LiveExamPortal({
               );
             })}
           </div>
-
-          {/* Stepper Navigation Actions Right Anchor */}
           <div className="order-3 flex justify-end items-center gap-2">
             <button
               type="button"
@@ -244,9 +240,8 @@ export function LiveExamPortal({
               <ChevronRight className="w-4 h-4 stroke-[3]" />
             </button>
           </div>
-
         </div>
       </footer>
     </div>
   );
-}
+};
