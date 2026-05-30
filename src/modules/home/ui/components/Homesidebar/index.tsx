@@ -1,40 +1,28 @@
 "use client"
 
 import { 
-  LayoutDashboard, 
-  User, 
-  Library, 
-  Trophy, 
-  GraduationCap, 
-  Bell, 
-  LifeBuoy, 
-  LogOut, 
-  School,
-  Presentation,
-  PresentationIcon,
+  LayoutDashboard, User, Library, Trophy, GraduationCap, 
+  Bell, LogOut, School, Presentation, ShieldCheck, ArrowLeftRight,
 } from "lucide-react"
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
+  SidebarGroupContent, SidebarHeader, SidebarMenu,
+  SidebarMenuButton, SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import Image from "next/image";
-import Link from "next/link"; // [!code ++]
+import Link from "next/link";
 import { SignOutButton } from "@clerk/nextjs";
 
 interface HomeSidebarProps {
   activeTitle: string;
   setActiveTitle: (title: string) => void;
+  role?: string | null;       
+  realRole?: string | null;     
+  onToggleMode?: () => void;
+  isViewingAsUser?: boolean;
 }
 
-// 1. Added URLs to your navigation items
-const navItems = [
+const userNavItems = [
   { title: "Dashboard", icon: LayoutDashboard, url: "/dashboard" },
   { title: "User Profile", icon: User, url: "/profile" },
   { title: "Library", icon: Library, url: "/libraries" },
@@ -44,55 +32,82 @@ const navItems = [
   { title: "Class", icon: School, url: "/classes" },
   { title: "Quizathon", icon: Trophy, url: "/quizathon" },
   { title: "Teachers", icon: Presentation, url: "/teachers" },
-]
+];
 
-export const HomeSidebar = ({ setActiveTitle, activeTitle }: HomeSidebarProps) => {
+const adminNavItems = [
+  { title: "Dashboard", icon: ShieldCheck, url: "/admin" },
+  { title: "Manage Quizathon", icon: Trophy, url: "/admin/quizathon" },
+  { title: "Manage Teachers", icon: Presentation, url: "/admin/teachers" },
+  { title: "Manage Scholarship", icon: GraduationCap, url: "/admin/scholarship" },
+];
+
+export const HomeSidebar = ({ 
+  setActiveTitle, 
+  activeTitle, 
+  role,
+  realRole,
+  onToggleMode, 
+  isViewingAsUser 
+}: HomeSidebarProps) => {
+  
+  const currentNav = (role === 'admin' && !isViewingAsUser) ? adminNavItems : userNavItems;
+
   return (
-    <Sidebar className="border-none bg-[#121212] text-zinc-500 z-50 shadow-none">
-      <SidebarHeader className="p-6">
+    <Sidebar className="border-r-2 border-blue-500 bg-[#121212] text-zinc-500 z-50">
+      <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <div>
-            <Image src="/logo.png" alt="logo" width={35} height={35} />
-          </div>
+          <Image src="/logo.png" alt="logo" width={35} height={35} />
           <span className="font-bold text-xl text-blue-700 tracking-tight">
-            EduKate
+            {role === 'admin' && !isViewingAsUser ? 'Edukate' : 'EduKate'}
           </span>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-6">
+      <SidebarContent className="px-3">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-1">
-               {navItems.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton 
-                  asChild 
-                  onClick={() => setActiveTitle(item.title)}
-                  isActive={activeTitle === item.title}
-                  className="py-6 text-md transition-all rounded-md hover:bg-zinc-800 hover:text-zinc-200 data-[active=true]:bg-zinc-900 data-[active=true]:text-white"
-                >
-                  <Link href={item.url}>
-                    <div className="flex items-center w-full"> 
-                      <item.icon className={`h-5 w-5 mr-3 transition-colors ${
-                        activeTitle === item.title ? 'text-blue-500' : 'text-zinc-600'
-                      }`} />
-                      <span>{item.title}</span>
-                    </div>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            <SidebarMenu className="gap-0.5"> 
+              {currentNav.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    onClick={() => setActiveTitle(item.title)}
+                    isActive={activeTitle === item.title}
+                    className="py-5 font-medium text-md transition-all rounded-none hover:bg-zinc-800 hover:text-zinc-200 data-[active=true]:bg-zinc-900 data-[active=true]:text-white"
+                  >
+                    <Link href={item.url}>
+                      <div className="flex items-center w-full"> 
+                        <item.icon className={`h-6 w-6 mr-9 ${activeTitle === item.title ? 'text-blue-500' : 'text-zinc-400'}`} />
+                        <span>{item.title}</span>
+                      </div>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-zinc-900">
+      <SidebarFooter className="p-3 border-t border-zinc-900">
         <SidebarMenu>
+          {/* Using realRole ensures the button stays even when you switch to user mode */}
+          {realRole === 'admin' && (
+            <SidebarMenuItem>
+              <SidebarMenuButton 
+                onClick={onToggleMode}
+                className="mb-2 py-5 text-amber-500 hover:bg-amber-950/20 transition-colors"
+              >
+                <ArrowLeftRight className="h-4 w-4 mr-2" />
+                <span>
+                  {isViewingAsUser ? "Switch to Admin Mode" : "Switch to User Mode"}
+                </span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+
           <SidebarMenuItem>
-            {/* For Log Out, we usually don't need a Link, but keep it a button */}
-            <SidebarMenuButton className="py-4 text-zinc-600 hover:bg-red-950/20 hover:text-red-500 transition-colors">
+            <SidebarMenuButton className="py-3 text-zinc-600 hover:bg-red-950/20 hover:text-red-500 transition-colors">
               <LogOut className="h-4 w-4 mr-2" />
               <SignOutButton>
                 <span>Log out</span>

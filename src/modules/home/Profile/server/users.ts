@@ -6,9 +6,19 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 export const userRouter = createTRPCRouter({
-  // SELF: Logged in user dashboard
+  // SELF: Logged in user dashboard - Fresh fetch ensures 'role' is current
   getOne: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.user;
+    if (!ctx.clerkUserId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.clerkId, ctx.clerkUserId))
+      .limit(1);
+
+    if (!user) throw new TRPCError({ code: "NOT_FOUND" });
+    
+    return user;
   }),
 
   // ADMIN VIEW: Full record including sensitive points
@@ -25,8 +35,6 @@ export const userRouter = createTRPCRouter({
       return user;
     }),
 
-  // PUBLIC VIEW: Only the essentials. 
-  // No manual interface needed; tRPC infers the shape from the .select()
   getPublicProfile: baseProcedure
     .input(z.object({ clerkId: z.string() }))
     .query(async ({ input }) => {
@@ -47,6 +55,7 @@ export const userRouter = createTRPCRouter({
       return user;
     }),
 
+  // UPDATED: Added guard clause to fix type mismatch with eq(users.clerkId, ctx.clerkUserId)
   updateProfile: protectedProcedure
     .input(z.object({
       firstName: z.string().nullish(),
