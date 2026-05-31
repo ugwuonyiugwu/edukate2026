@@ -201,28 +201,32 @@ export const DashboardView = () => {
   <h3 className="text-lg font-bold mb-4">Progress</h3>
   <div className="grid grid-cols-2 gap-4">
     
-    <button onClick={() => router.push('/practice')} className="bg-white p-5 rounded-3xl border border-orange-200 shadow-sm hover:shadow-md transition-all active:scale-95 text-left">
-      <div className="text-orange-500 mb-2"><PenTool size={24} /></div>
+    <button onClick={() => router.push('/practice')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-orange-200 shadow-sm hover:shadow-md transition-all active:scale-95">
+      <div className="text-orange-500 mx-auto mb-2"><PenTool size={24} /></div>
       <h3 className="font-bold text-gray-800">Quizathon</h3>
       <p className="text-xs text-gray-500">Join our monthly quizathon</p>
+      <span className="absolute top-2 right-2 border-2">10%</span>
     </button>
 
-    <button onClick={() => router.push('/battlefield')} className="bg-white p-5 rounded-3xl border border-blue-200 shadow-sm hover:shadow-md transition-all active:scale-95 text-left">
+    <button onClick={() => router.push('/battlefield')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-blue-200 shadow-sm hover:shadow-md transition-all active:scale-95">
       <div className="text-blue-500 mb-2"><Gamepad2 size={24} /></div>
       <h3 className="font-bold text-gray-800">Battlefield</h3>
       <p className="text-xs text-gray-500">Challenge others and win points</p>
+      <span className="absolute top-2 right-2 border-2">10%</span>
     </button>
 
-    <button onClick={() => router.push('/study-pal')} className="bg-white p-5 rounded-3xl border border-blue-400 shadow-sm hover:shadow-md transition-all active:scale-95 text-left">
+    <button onClick={() => router.push('/study-pal')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-blue-400 shadow-sm hover:shadow-md transition-all active:scale-95">
       <div className="text-blue-400 mb-2"><BookOpenText size={24} /></div>
       <h3 className="font-bold text-gray-800">Courses</h3>
       <p className="text-xs text-gray-500">Access our copyright free contents</p>
+      <span className="absolute top-2 right-2 border-2">10%</span>
     </button>
 
-    <button onClick={() => router.push('/flashcards')} className="bg-white p-5 rounded-3xl border border-sky-300 shadow-sm hover:shadow-md transition-all active:scale-95 text-left">
+    <button onClick={() => router.push('/flashcards')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-sky-300 shadow-sm hover:shadow-md transition-all active:scale-95">
       <div className="text-sky-500 mb-2"><Layers size={24} /></div>
-      <h3 className="font-bold text-gray-800">Flashcards</h3>
+      <h3 className="font-bold text-gray-800">My Library</h3>
       <p className="text-xs text-gray-500">Review key concepts</p>
+      <span className="absolute top-2 right-2 border-2 p-1 px-2">{library?.documents?.length || 0}</span>
     </button>
 
   </div>
