@@ -219,7 +219,7 @@ export const DashboardView = () => {
       <div className="text-blue-400 mb-2"><BookOpenText size={24} /></div>
       <h3 className="font-bold text-gray-800">Courses</h3>
       <p className="text-xs text-gray-500">Access our copyright free contents</p>
-      <span className="absolute top-2 right-2 border-2">10%</span>
+      <span className="absolute top-2 right-2 border-2 p-1 px-2">{user?.courseProgress ?? 0}</span>
     </button>
 
     <button onClick={() => router.push('/flashcards')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-sky-300 shadow-sm hover:shadow-md transition-all active:scale-95">
