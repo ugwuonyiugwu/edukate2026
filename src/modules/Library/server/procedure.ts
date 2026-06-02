@@ -25,7 +25,29 @@ export const documentRouter = createTRPCRouter({
       totalDownloads: lib.documents.reduce((acc, doc) => acc + (doc.downloads || 0), 0),
     }));
   }),
+  getDocumentById: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const doc = await ctx.db.query.documents.findFirst({
+        where: eq(documents.id, input.id),
+      });
 
+      if (!doc) throw new TRPCError({ code: "NOT_FOUND" });
+      return doc;
+    }),
+
+  getLibraryById: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const library = await ctx.db.query.libraries.findFirst({
+        where: eq(libraries.id, input.id),
+        with: { documents: true }
+      });
+      
+      if (!library) throw new TRPCError({ code: "NOT_FOUND" });
+      return library;
+    }),
+    
   getLibrary: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.query.libraries.findFirst({
       where: eq(libraries.clerkId, ctx.user.clerkId),
