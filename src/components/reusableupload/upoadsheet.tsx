@@ -49,7 +49,7 @@ export const UploadSheet = ({
       <div className={`fixed inset-x-0 bottom-0 z-50 transition-transform duration-500 ease-out transform ${
         isOpen ? "translate-y-0" : "translate-y-full"
       }`}>
-        <div className="max-w-2xl mx-auto bg-white rounded-t-[2.5rem] p-8 md:p-12 shadow-2xl relative border-t border-gray-100 text-center">
+        <div className="max-w-2xl mx-auto bg-white rounded-t-sm p-8 md:p-12 shadow-2xl relative border-t border-gray-100 text-center">
           <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-gray-200 rounded-full" />
           
           <button onClick={onClose} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-900 transition-colors">

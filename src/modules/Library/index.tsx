@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { UploadButton } from "@/app/utils/uploadthing";
+import { toast } from "sonner";
 
 // Updated Interface to include videoUrl
 export interface DocumentType {
@@ -59,14 +60,22 @@ export const LibraryPage = () => {
   // Mutations
   const updateLibMutation = trpc.documents.updateLibrary.useMutation({
     onSuccess: () => {
+      toast.success("Library updated successfully!");
       utils.documents.getLibrary.invalidate();
       setIsEditLibOpen(false);
+    },
+    onError: (err) => {
+      toast.error(`Update failed: ${err.message}`);
     }
   });
 
   const deleteLibMutation = trpc.documents.deleteLibrary.useMutation({
     onSuccess: () => {
+      toast.success("Library deleted permanently.");
       router.push("/dashboard");
+    },
+    onError: (err) => {
+      toast.error("Failed to delete library.");
     }
   });
 
@@ -81,17 +90,21 @@ export const LibraryPage = () => {
     utils.documents.getMyDocuments.invalidate();
   };
 
-  const deleteDocMutation = trpc.documents.delete.useMutation({
-    onSuccess: () => utils.documents.getMyDocuments.invalidate(),
-    onError: (err) => alert(err.message),
+ const deleteDocMutation = trpc.documents.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Document removed.");
+      utils.documents.getMyDocuments.invalidate();
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
   });
 
   const openEditLibrary = () => {
-    if (library) {
-      setEditName(library.name);
-      setEditThumb(library.thumbnailUrl);
-      setIsEditLibOpen(true);
-    }
+    // We removed the 'if (!library)' check so the dialog opens even if loading
+    setEditName(library?.name || "Personal Library");
+    setEditThumb(library?.thumbnailUrl || null);
+    setIsEditLibOpen(true);
   };
 
   return (
@@ -163,7 +176,13 @@ export const LibraryPage = () => {
                   <div className="flex items-center gap-4">
                     <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-blue-600 flex items-center justify-center shrink-0 shadow-inner">
                       {library?.thumbnailUrl ? (
-                        <Image src={library.thumbnailUrl} alt="Library" fill className="object-cover" />
+                        <Image 
+                          src={library.thumbnailUrl} 
+                          alt="Library" 
+                          fill 
+                          sizes="64px" 
+                          className="object-cover" 
+                        />
                       ) : (
                         <FileText className="text-white/40" size={32} />
                       )}
@@ -248,7 +267,7 @@ export const LibraryPage = () => {
                                   <button 
                                     onClick={() => setEditingDoc({
                                       ...doc,
-                                      videoUrl: doc.videoUrl ?? null, // Added this line
+                                      videoUrl: doc.videoUrl ?? null,
                                       thumbnailUrl: doc.thumbnailUrl ?? null,
                                       createdAt: doc.createdAt ?? null,
                                     } as DocumentType)} 
@@ -292,7 +311,7 @@ export const LibraryPage = () => {
 
       {/* EDIT LIBRARY DIALOG */}
       <Dialog open={isEditLibOpen} onOpenChange={setIsEditLibOpen}>
-        <DialogContent className="sm:max-w-106.25 rounded-[40px] p-8 border-none shadow-2xl">
+        <DialogContent className="z-100 sm:max-w-106.25 rounded-[40px] p-8 border-none shadow-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black tracking-tight">Library Settings</DialogTitle>
             <DialogDescription className="font-medium text-gray-500">Customize how your collection appears to others.</DialogDescription>

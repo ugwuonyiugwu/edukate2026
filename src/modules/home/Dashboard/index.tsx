@@ -1,17 +1,15 @@
 'use client';
 import { trpc } from "@/trpc/client";
-import { BookOpen, Trophy, GraduationCap, Loader2, Image as ImageIcon, BookOpenText, Layers, Gamepad2, PenTool } from "lucide-react";
+import { BookOpen, Trophy, GraduationCap, Loader2, Image as ImageIcon, BookOpenText, Layers, Gamepad2, PenTool, TrophyIcon } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { useCallback, useEffect, useState } from 'react';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-// UI Components
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { UploadButton } from "@/app/utils/uploadthing";
+import { useUploadThing } from "@/app/utils/uploadthing";
 import Image from "next/image";
 
 interface CarouselFrameProps {
@@ -31,31 +29,28 @@ const CarouselFrame = ({ children, className = "" }: CarouselFrameProps) => (
 export const DashboardView = () => {
   const router = useRouter();
   const utils = trpc.useUtils();
+  const { startUpload } = useUploadThing("libraryThumbnailUploader");
   
   // Data Fetching
   const { data: user } = trpc.users.getOne.useQuery();
   const { data: library, isLoading: isLibLoading } = trpc.documents.getLibrary.useQuery();
-
+  
   // Library Creation States
   const [isLibDialogOpen, setIsLibDialogOpen] = useState(false);
   const [libName, setLibName] = useState("");
   const [libThumbnail, setLibThumbnail] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false); 
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Mutations
-  const createLibMutation = trpc.documents.createLibrary.useMutation({
-    onSuccess: () => {
-      utils.documents.getLibrary.invalidate();
-      setIsLibDialogOpen(false);
-      router.push("/library");
-    },
-  });
+
 
   // Embla Carousel Setup
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { 
       loop: true, 
-      slidesToScroll: 1, // Changed to 1 to ensure smooth, single-slide navigation
-      align: 'start'     // Aligns the active slide to the start of the container
+      slidesToScroll: 1,
+      align: 'start'
     }, 
     [Autoplay({ delay: 5000 })]
   );
@@ -78,21 +73,59 @@ export const DashboardView = () => {
     };
   }, [emblaApi, onSelect]);
 
-  // Intercept Library Link if no library exists
-  const handleLibraryClick = (e: React.MouseEvent) => {
-    if (!isLibLoading && library === null) {
-      e.preventDefault();
-      setIsLibDialogOpen(true);
+ // Mutations
+  const createLibMutation = trpc.documents.createLibrary.useMutation({
+    onSuccess: () => {
+      utils.documents.getLibrary.invalidate();
+      setIsLibDialogOpen(false);
+      setIsUploading(false); // Ensure loader resets
+      router.push("/library");
+    },
+    onError: () => {
+      setIsUploading(false);
     }
-  };
+  });
 
-  const handleCreateLibrary = () => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (file) {
+    setPendingFile(file);
+    // Create a local URL for the image preview
+    setPreviewUrl(URL.createObjectURL(file));
+  }
+};
+
+ const handleCreateLibrary = async () => {
+  setIsUploading(true);
+  try {
+    let finalUrl: string | null = null;
+
+    if (pendingFile) {
+      const res = await startUpload([pendingFile]);
+      if (res?.[0]) {
+        // Use the 'url' property as shown in your log
+        finalUrl = res[0].url; 
+      }
+    }
+    
     createLibMutation.mutate({
       name: libName,
-      thumbnailUrl: libThumbnail ?? undefined,
+      thumbnailUrl: finalUrl,
     });
-  };
-
+  } catch (err) {
+    console.error("Mutation failed:", err);
+    setIsUploading(false);
+  }
+};
+  const handleLibraryClick = (e: React.MouseEvent) => {
+  if (library) {
+    router.push(`/library`);
+  } 
+  else if (!isLibLoading) {
+    e.preventDefault();
+    setIsLibDialogOpen(true);
+  }
+};
   const recentItems = [
     { id: '1', title: 'Fundamentals of History', initial: 'H', color: 'text-blue-600' },
     { id: '2', title: 'New School Physics', initial: 'P', color: 'text-blue-800' },
@@ -100,14 +133,13 @@ export const DashboardView = () => {
   ];
 
   return (
-    <div className="max-w-full mx-auto p-2 sm:p-4 bg-white min-h-screen">
+    <div className="max-w-full mx-auto px-2 sm:px-4 bg-white min-h-screen">
       {/* Header Section */}
-      <div className="flex justify-between items-start mb-8 gap-4">
+      <div className="flex justify-between items-start mb-2 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900" suppressHydrationWarning> Welcome {user?.username || user?.firstName || 'User'}, </h1>
-          <p className="text-gray-500 text-sm mt-1">The only way to do great work is to love what you do!</p>
+          <h1 className="text-xl ml-5 capitalize md:text-2xl font-bold text-gray-900" suppressHydrationWarning> Welcome {user?.username || user?.firstName || 'User'} </h1>
         </div>
-        <div className="bg-blue-50 p-2 rounded-sm border border-blue-100 shadow-sm mb-5 text-right shrink-0">
+        <div className="bg-blue-50 p-1 rounded-sm border border-blue-100 shadow-sm mb-5 text-right shrink-0">
           <div className="flex items-center justify-center gap-1">
             <span className="text-2xl font-bold text-blue-700">{user?.points ?? 0}</span>
             <span className="text-xl">💎</span>
@@ -116,7 +148,7 @@ export const DashboardView = () => {
     </div>
 
     {/* Embla Carousel - Responsive Wrapper */}
-    <div className="embla mb-10 group relative overflow-hidden w-full" ref={emblaRef}>
+    <div className="embla mb-20 group relative overflow-hidden w-full" ref={emblaRef}>
       <div className="embla__container flex">
         
         {/* Slide 1 */}
@@ -167,78 +199,50 @@ export const DashboardView = () => {
       </div>
     </div>
      
-     {/* Progress Section */}
-<section className="mb-10">
-  <h3 className="text-lg font-bold mb-4">Progress</h3>
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div className="bg-blue-600 rounded-3xl p-5 text-white shadow-lg shadow-blue-200">
-      <div className="flex items-center gap-2 mb-4"><Trophy size={18} /><span className="font-semibold">Quizathon</span></div>
-      <div className="flex items-end gap-3"><span className="text-3xl font-bold">10%</span></div>
-    </div>
-
-    <div className="bg-blue-50 rounded-3xl p-5 border border-blue-100 shadow-sm">
-      <div className="flex items-center gap-2 mb-4 text-blue-700"><BookOpen size={18} /><span className="font-semibold">Courses</span></div>
-      <div className="flex items-end gap-3"><span className="text-3xl font-bold text-blue-800">{user?.courseProgress ?? 0}</span></div>
-    </div>
-
-    <Link href="/library" onClick={handleLibraryClick}>
-      <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-xl shadow-gray-100 transition-all hover:border-blue-200 cursor-pointer active:scale-95">
-        <div className="flex items-center justify-between mb-4 text-blue-600">
-          <span className="font-semibold">My library</span>
-          {isLibLoading && <Loader2 size={14} className="animate-spin" />}
-        </div>
-        <div className="flex items-end gap-3">
-          <span className="text-3xl font-bold text-blue-600">{library?.documents?.length || 0}</span>
-          <p className="text-[10px] text-gray-400 leading-tight pb-1">{library ? `Welcome to ${library.name}` : "Click to initialize"}</p>
-        </div>
-      </div>
-    </Link>
-  </div>
-</section>
 
 {/* Dashboard Actions Section */}
 <section className="mb-10">
-  <h3 className="text-lg font-bold mb-4">Progress</h3>
+  <h3 className="text-lg font-bold mb-4">Quick Action</h3>
   <div className="grid grid-cols-2 gap-4">
     
     <button onClick={() => router.push('/practice')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-orange-200 shadow-sm hover:shadow-md transition-all active:scale-95">
-      <div className="text-orange-500 mx-auto mb-2"><PenTool size={24} /></div>
+      <div className="text-orange-500 mx-auto mb-2"><TrophyIcon size={24} /></div>
       <h3 className="font-bold text-gray-800">Quizathon</h3>
       <p className="text-xs text-gray-500">Join our monthly quizathon</p>
-      <span className="absolute top-2 right-2 border-2">10%</span>
+      <span className="absolute top-2 right-2 text-blue-700 font-medium">10%</span>
     </button>
 
     <button onClick={() => router.push('/battlefield')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-blue-200 shadow-sm hover:shadow-md transition-all active:scale-95">
       <div className="text-blue-500 mb-2"><Gamepad2 size={24} /></div>
       <h3 className="font-bold text-gray-800">Battlefield</h3>
       <p className="text-xs text-gray-500">Challenge others and win points</p>
-      <span className="absolute top-2 right-2 border-2">10%</span>
+      <span className="absolute top-2 right-2 text-blue-700 font-medium">10%</span>
     </button>
 
     <button onClick={() => router.push('/study-pal')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-blue-400 shadow-sm hover:shadow-md transition-all active:scale-95">
       <div className="text-blue-400 mb-2"><BookOpenText size={24} /></div>
       <h3 className="font-bold text-gray-800">Courses</h3>
       <p className="text-xs text-gray-500">Access our copyright free contents</p>
-      <span className="absolute top-2 right-2 border-2 p-1 px-2">{user?.courseProgress ?? 0}</span>
+      <span className="absolute top-2 right-2 text-blue-700 font-medium p-1 px-2">{user?.courseProgress ?? 0}</span>
     </button>
 
-    <button onClick={() => router.push('/flashcards')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-sky-300 shadow-sm hover:shadow-md transition-all active:scale-95">
+    <button onClick={handleLibraryClick} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-sky-300 shadow-sm hover:shadow-md transition-all active:scale-95">
       <div className="text-sky-500 mb-2"><Layers size={24} /></div>
       <h3 className="font-bold text-gray-800">My Library</h3>
       <p className="text-xs text-gray-500">Review key concepts</p>
-      <span className="absolute top-2 right-2 border-2 p-1 px-2">{library?.documents?.length || 0}</span>
+      <span className="absolute top-2 right-2 text-blue-700 font-medium p-1 px-2">{library?.documents?.length || 0}</span>
     </button>
 
   </div>
 </section>
 
       {/* Recents & Updates */}
-      <div className="grid grid-row-1 md:grid-row-2 gap-10">
+      
         <section>
           <h3 className="text-lg font-bold mb-4">Recents</h3>
-          <div className="bg-amber-600 border border-gray-100 rounded-2xl shadow-sm overflow-hidden w-full">
+          <div className="bg-[#e5e7eb] border border-gray-100 rounded-sm shadow-sm overflow-hidden w-full">
             {recentItems.map((item, idx) => (
-              <div key={item.id} className={`flex items-center p-4 gap-4 ${idx !== recentItems.length - 1 ? 'border-b border-gray-50' : ''}`}>
+              <div key={item.id} className={`flex items-center p-4 gap-4 ${idx !== recentItems.length - 1 ? 'border-2 border-gray-50' : ''}`}>
                 <span className={`text-xl font-black w-8 ${item.color}`}>{item.initial}</span>
                 <div className="h-8 w-1px bg-gray-200" />
                 <span className="font-medium text-gray-700">{item.title}</span>
@@ -246,72 +250,92 @@ export const DashboardView = () => {
             ))}
           </div>
         </section>
+
+      <div className="h-40 w-2xl border-2 border-b-blue-800 mt-7">
+
       </div>
 
-      {/* --- INITIALIZATION DIALOG --- */}
-      <Dialog open={isLibDialogOpen} onOpenChange={setIsLibDialogOpen}>
-        <DialogContent className="sm:max-w-106.25 rounded-[32px] p-8 border-none shadow-2xl overflow-hidden">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-black text-gray-900 tracking-tight">Setup Your Library</DialogTitle>
-            <DialogDescription className="text-gray-500">
-              Create a name and cover for your study vault to begin.
-            </DialogDescription>
-          </DialogHeader>
+     {/* --- INITIALIZATION DIALOG --- */}
+<Dialog open={isLibDialogOpen} onOpenChange={setIsLibDialogOpen}>
+  <DialogContent className="sm:max-w-106.25 rounded-sm p-8 border-none shadow-2xl overflow-hidden">
+    <DialogHeader>
+      <DialogTitle className="text-2xl font-black text-gray-900 tracking-tight">Setup Your Library</DialogTitle>
+      <DialogDescription className="text-gray-500">
+        Create a name and cover for your study vault to begin.
+      </DialogDescription>
+    </DialogHeader>
 
-          <div className="grid gap-6 py-4">
-            {/* Thumbnail Upload Box */}
-            <div className="w-full h-44 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden relative group">
-              {libThumbnail ? (
-                <>
-                  <Image src={libThumbnail} alt="Cover" fill className="w-full h-full object-cover" />
-                  <button 
-                    onClick={() => setLibThumbnail(null)}
-                    className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full text-[10px] px-2 hover:bg-red-500 transition-colors"
-                  >
-                    Remove
-                  </button>
-                </>
-              ) : (
-                <div className="flex flex-col items-center gap-2">
-                  <ImageIcon className="text-gray-300" size={32} />
-                  <UploadButton
-                    endpoint="libraryThumbnailUploader"
-                    onClientUploadComplete={(res) => setLibThumbnail(res[0].url)}
-                    appearance={{
-                      button: "bg-blue-600 text-xs font-bold rounded-full px-4 py-2 h-auto",
-                      allowedContent: "hidden"
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Library Name Input */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-gray-400 tracking-wider">Library Name</label>
-              <Input 
-                placeholder="e.g. My Science Library" 
-                value={libName}
-                onChange={(e) => setLibName(e.target.value)}
-                className="rounded-xl border-gray-100 bg-gray-50 py-6 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <Button 
-              onClick={handleCreateLibrary}
-              disabled={!libName || createLibMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 rounded-2xl shadow-lg shadow-blue-100"
+    <div className="grid gap-6 py-4">
+      {/* Thumbnail Upload Box */}
+      <div className="w-full h-44 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden relative group">
+        {previewUrl ? (
+          <>
+            <Image 
+              src={previewUrl} 
+              alt="Cover" 
+              fill 
+              className="w-full h-full object-cover" 
+            />
+            <button 
+              type="button"
+              onClick={() => { 
+                setPendingFile(null); 
+                if (previewUrl) URL.revokeObjectURL(previewUrl);
+                setPreviewUrl(null); 
+              }}
+              className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full text-[10px] px-2 hover:bg-red-500 transition-colors"
             >
-              {createLibMutation.isPending ? <Loader2 className="animate-spin" /> : "Create & Continue"}
-            </Button>
-            <Button variant="ghost" onClick={() => setIsLibDialogOpen(false)} className="text-gray-400 font-bold">
-              Maybe later
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+              Remove
+            </button>
+          </>
+        ) : (
+          <label className="cursor-pointer flex flex-col items-center gap-2">
+            <ImageIcon className="text-gray-300" size={32} />
+            <span className="text-xs font-bold text-gray-400">Select Image</span>
+            <input 
+              type="file" 
+              accept="image/*" 
+              className="hidden" 
+              onChange={handleFileChange} 
+            />
+          </label>
+        )}
+      </div>
+
+      {/* Library Name Input */}
+      <div className="space-y-2">
+        <label className="text-[10px] font-black uppercase text-gray-400 tracking-wider">Library Name</label>
+        <Input 
+          placeholder="e.g. My Science Library" 
+          value={libName}
+          onChange={(e) => setLibName(e.target.value)}
+          className="rounded-xl border-gray-100 bg-gray-50 py-6 focus:ring-blue-500"
+        />
+      </div>
+    </div>
+
+    <div className="flex flex-col gap-3">
+      <Button 
+        onClick={handleCreateLibrary}
+        disabled={!libName || createLibMutation.isPending || isUploading}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 rounded-2xl shadow-lg shadow-blue-100"
+      >
+        {(createLibMutation.isPending || isUploading) ? (
+          <Loader2 className="animate-spin" /> 
+        ) : (
+          "Create & Continue"
+        )}
+      </Button>
+      <Button 
+        variant="ghost" 
+        onClick={() => setIsLibDialogOpen(false)} 
+        className="text-gray-400 font-bold"
+      >
+        Maybe later
+      </Button>
+    </div>
+  </DialogContent>
+</Dialog>
     </div>
   );
 }

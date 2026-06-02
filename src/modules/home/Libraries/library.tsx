@@ -28,10 +28,10 @@ export default function DiscoveryPage() {
   }
 
   return (
-    <div className="p-6 md:p-10 max-w-7xl mx-auto min-h-screen bg-[#FAFAFA]">
+    <div className="px-2 md:px-4 max-w-7xl mx-auto min-h-screen bg-[#FAFAFA]">
       {/* Header Section */}
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 pt-6 md:flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 md:flex items-center justify-between">
               <Link href="/dashboard" className="group flex items-center gap-2 text-slate-500 font-bold text-[10px] md:text-xs uppercase tracking-widest transition-all hover:text-indigo-600">
                 <div className="p-2 bg-white rounded-full shadow-sm group-hover:shadow-md transition-all">
                   <ChevronLeft size={16} />

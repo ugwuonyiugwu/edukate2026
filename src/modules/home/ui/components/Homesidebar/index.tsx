@@ -36,9 +36,10 @@ const userNavItems = [
 
 const adminNavItems = [
   { title: "Dashboard", icon: ShieldCheck, url: "/admin" },
-  { title: "Manage Quizathon", icon: Trophy, url: "/admin/quizathon" },
-  { title: "Manage Teachers", icon: Presentation, url: "/admin/teachers" },
-  { title: "Manage Scholarship", icon: GraduationCap, url: "/admin/scholarship" },
+  { title: "Quizathon", icon: Trophy, url: "/admin/quizathon" },
+  { title: "Teachers", icon: Presentation, url: "/admin/teachers" },
+  { title: "Scholarship", icon: GraduationCap, url: "/admin/scholarship" },
+  { title: "Classes", icon: GraduationCap, url: "/admin/classes" },
 ];
 
 export const HomeSidebar = ({ 

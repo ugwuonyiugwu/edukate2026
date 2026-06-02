@@ -2,7 +2,7 @@
 import { Suspense } from 'react';
 import { trpc, HydrateClient } from "@/trpc/server";
 import { QuizContent } from '@/modules/home/Quizathon/quizcontent';
-import { QuizSkeleton } from '@/modules/home/Quizathon/quizskeleton';
+import { LoadingSpinner } from '@/modules/home/ui/components/Logospinal';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +12,7 @@ export default async function MonthlyRegistrationPage() {
   return (
     <HydrateClient>
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-        <Suspense fallback={<QuizSkeleton />}>
+        <Suspense fallback={<LoadingSpinner/>}>
           <QuizContent />
         </Suspense>
       </div>
