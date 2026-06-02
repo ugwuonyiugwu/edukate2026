@@ -36,6 +36,20 @@ export const documentRouter = createTRPCRouter({
       return doc;
     }),
 
+    incrementDownloads: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      // Use SQL increment for atomicity
+      await ctx.db
+        .update(documents)
+        .set({
+          downloads: sql`${documents.downloads} + 1`
+        })
+        .where(eq(documents.id, input.id));
+        
+      return { success: true };
+    }),
+
   getLibraryById: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
@@ -54,8 +68,6 @@ export const documentRouter = createTRPCRouter({
       with: { documents: true }
     }) ?? null;
   }),
-
-  // src/modules/Library/server/procedure.ts
 
 createLibrary: protectedProcedure
   .input(z.object({
