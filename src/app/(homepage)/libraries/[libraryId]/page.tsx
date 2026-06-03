@@ -1,6 +1,8 @@
 import { trpc } from "@/trpc/server";
 import { HydrateClient } from "@/trpc/server";
 import { LibraryDetailsView } from "@/modules/home/Libraries/Libraryview/view";
+import { Suspense } from "react";
+import { LoadingSpinner } from "@/modules/home/ui/components/Logospinal";
 
 // In Next.js 15, these MUST be Promises
 interface PageProps {
@@ -26,7 +28,9 @@ export default async function LibraryPage(props: PageProps) {
 
   return (
     <HydrateClient>
-      <LibraryDetailsView libraryId={libraryId} />
+      <Suspense fallback={<LoadingSpinner/>}>
+        <LibraryDetailsView libraryId={libraryId} />
+      </Suspense>
     </HydrateClient>
   );
 }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, baseProcedure } from "@/trpc/init";
+import { createTRPCRouter, protectedProcedure, baseProcedure, adminProcedure } from "@/trpc/init";
 import { documents, libraries } from "@/db/schema";
 import { TRPCError } from "@trpc/server";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -138,7 +138,7 @@ createLibrary: protectedProcedure
       .orderBy(desc(documents.createdAt));
   }),
 
-  create: protectedProcedure
+  create: adminProcedure
     .input(z.object({
       name: z.string().min(1),
       subject: z.string().min(1),

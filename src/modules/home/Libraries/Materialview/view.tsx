@@ -72,10 +72,6 @@ export const DocumentDetailView = ({ documentId, libraryId }: { documentId: numb
           ) : (
             <div className="relative aspect-video bg-slate-900 rounded-3xl overflow-hidden shadow-lg cursor-pointer">
                 <Image src={doc.thumbnailUrl || ""} alt="Preview" fill className="object-cover opacity-50" />
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                     <PlayIcon size={40}/>
-                     <p className="text-sm mt-2 font-medium">click here to watch tutorial video</p>
-                </div>
             </div>
           )}
           

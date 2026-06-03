@@ -251,7 +251,7 @@ export const DashboardView = () => {
           </div>
         </section>
 
-      <div className="h-40 w-2xl border-2 border-b-blue-800 mt-7">
+      <div className="h-40 w-60 border-2 border-b-blue-800 mt-7">
 
       </div>
 
