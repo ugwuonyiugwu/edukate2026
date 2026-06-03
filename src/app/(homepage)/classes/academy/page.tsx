@@ -1,6 +1,8 @@
 import { trpc } from "@/trpc/server"; // Use your server-side TRPC caller
 import { HydrateClient } from "@/trpc/server";
 import { AcademyDirectoryView } from "@/modules/home/Classes/Classview/AcademyDirectoryView";
+import { LoadingSpinner } from "@/modules/home/ui/components/Logospinal";
+import { Suspense } from "react";
 
 interface PageProps {
   searchParams: Promise<{ level?: string }>;
@@ -15,9 +17,11 @@ export default async function AcademyPage({ searchParams }: PageProps) {
 
   return (
     <HydrateClient>
-      <main className="min-h-screen bg-slate-50">
-        <AcademyDirectoryView selectedLevel={selectedLevel} />
-      </main>
+       <Suspense fallback={<LoadingSpinner/>}>
+          <main className="min-h-screen bg-slate-50">
+            <AcademyDirectoryView selectedLevel={selectedLevel} />
+          </main>
+       </Suspense>
     </HydrateClient>
   );
 }

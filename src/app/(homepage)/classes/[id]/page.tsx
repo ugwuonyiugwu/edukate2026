@@ -2,6 +2,7 @@ import { HydrateClient, trpc } from "@/trpc/server";
 import { ClassroomView } from "@/modules/home/Classes/Classview/classroom";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/modules/home/ui/components/Logospinal";
 
 // Ensure params is treated as a Promise
 export default async function Page(props: { params: Promise<{ id: string }> }) {
@@ -21,15 +22,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
   return (
     <HydrateClient>
-      <Suspense fallback={
-        <div className="h-screen w-full flex flex-col items-center justify-center bg-white">
-          <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
-            Loading Session...
-          </p>
-        </div>
-      }>
-        {/* Now 'id' is guaranteed to be a string */}
+       <Suspense fallback={<LoadingSpinner/>}>
         <ClassroomView classId={id} />
       </Suspense>
     </HydrateClient>

@@ -4,6 +4,8 @@ import { trpc } from "@/trpc/server";
 import { QuizDashboardView } from "@/modules/home/QuizGrid";
 import { HydrateClient } from "@/trpc/server";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { LoadingSpinner } from "@/modules/home/ui/components/Logospinal";
 
 export default async function QuizathonPage() {
   const { userId } = await auth();
@@ -23,7 +25,9 @@ export default async function QuizathonPage() {
 
   return (
     <HydrateClient>
-      <QuizDashboardView />
+      <Suspense fallback={<LoadingSpinner/>}>
+         <QuizDashboardView />
+      </Suspense>
     </HydrateClient>
   );
 }

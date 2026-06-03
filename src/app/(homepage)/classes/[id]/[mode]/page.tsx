@@ -1,6 +1,7 @@
 import { HydrateClient, trpc } from "@/trpc/server";
 import { LiveExamPortal } from "@/modules/home/Classes/Classview/ExamSession";
 import { Suspense } from "react";
+import { LoadingSpinner } from "@/modules/home/ui/components/Logospinal";
 
 export default async function Page(props: { 
   params: Promise<{ id: string; mode: 'practice' | 'exam' }> 
@@ -12,7 +13,7 @@ export default async function Page(props: {
 
   return (
     <HydrateClient>
-      <Suspense fallback={<div className="h-screen flex items-center justify-center">Loading...</div>}>
+       <Suspense fallback={<LoadingSpinner/>}>
         <LiveExamPortal classId={id} mode={mode} />
       </Suspense>
     </HydrateClient>

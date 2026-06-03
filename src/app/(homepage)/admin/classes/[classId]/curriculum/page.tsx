@@ -1,6 +1,7 @@
 import { HydrateClient, trpc } from "@/trpc/server";
 import { Suspense } from "react";
 import { CurriculumManagerClient } from "@/modules/Admin/Class/Questions";
+import { LoadingSpinner } from "@/modules/home/ui/components/Logospinal";
 
 export const dynamic = "force-dynamic";
 
@@ -20,14 +21,7 @@ export default async function CurriculumPage({
   return (
     <HydrateClient>
       <div className="min-h-screen bg-slate-50">
-        <Suspense fallback={
-          <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-            <div className="w-10 h-10 border-4 border-slate-900 border-t-transparent rounded-full animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-              Verifying Admin Registry...
-            </p>
-          </div>
-        }>
+        <Suspense fallback={<LoadingSpinner/>}>
           <CurriculumManagerClient classId={classId} />
         </Suspense>
       </div>
