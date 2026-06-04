@@ -62,3 +62,13 @@ export const adminProcedure = protectedProcedure.use(async (opts) => {
     }
     return opts.next();
 });
+
+export const facilitatorProcedure = protectedProcedure.use(async (opts) => {
+    if (opts.ctx.user.role !== "admin" && opts.ctx.user.role !== "facilitator") {
+        throw new TRPCError({ 
+            code: "FORBIDDEN", 
+            message: "You do not have the required permissions to perform this action." 
+        });
+    }
+    return opts.next();
+});

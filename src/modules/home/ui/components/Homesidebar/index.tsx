@@ -40,6 +40,7 @@ const adminNavItems = [
   { title: "Teachers", icon: Presentation, url: "/admin/teachers" },
   { title: "Scholarship", icon: GraduationCap, url: "/admin/scholarship" },
   { title: "Classes", icon: GraduationCap, url: "/admin/classes" },
+  { title: "upgrade user", icon: GraduationCap, url: "/admin/userupgrade" },
 ];
 
 export const HomeSidebar = ({ 
