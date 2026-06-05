@@ -35,7 +35,7 @@ export function RecentQuizCard({ category, title, points, date, time, id }: Rece
   if (!isExpired) return null;
 
   return (
-    <Link href={`/quizathon/${id}`}>
+    <Link href={`/quizgrid/${id}`}>
       <div className="rounded-sm border shadow-sm overflow-hidden transition-all bg-slate-50 border-slate-200 opacity-90 hover:opacity-100 group animate-in fade-in slide-in-from-bottom-2 duration-500">
         <div className="p-3">
           {/* Header Section */}

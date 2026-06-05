@@ -122,7 +122,7 @@ export const QuizDetailsView = ({ quizId }: { quizId: string }) => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-10 md:pb-20 font-sans ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 flex items-center justify-between">
-        <Link href="/quizathon" className="group flex items-center gap-2 text-slate-500 font-bold text-[10px] md:text-xs uppercase tracking-widest transition-all hover:text-indigo-600">
+        <Link href="/quizgrid" className="group flex items-center gap-2 text-slate-500 font-bold text-[10px] md:text-xs uppercase tracking-widest transition-all hover:text-indigo-600">
           <div className="p-2 bg-white rounded-full shadow-sm group-hover:shadow-md transition-all">
             <ChevronLeft size={16} />
           </div>

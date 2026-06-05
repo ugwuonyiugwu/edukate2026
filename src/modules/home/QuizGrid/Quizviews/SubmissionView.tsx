@@ -81,7 +81,7 @@ export const SubmissionView = ({ quizId }: { quizId: string }) => {
     onSuccess: () => {
       toast.success("All questions submitted!");
       localStorage.removeItem(`quiz-buffer-${quizId}`);
-      router.push(`/quizathon/${quizId}`);
+      router.push(`/quizgrid/${quizId}`);
     },
     onError: (err) => toast.error(err.message)
   });

@@ -70,7 +70,7 @@ export function CreateQuizDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[450px] bg-white rounded-xl border-none p-0 overflow-hidden shadow-2xl">
+      <DialogContent className="sm:max-w-112.5 bg-white rounded-xl border-none p-0 overflow-hidden shadow-2xl">
         {/* Header Section */}
         <div className="bg-[#0B1221] p-6 text-white border-b border-white/10">
           <DialogHeader>

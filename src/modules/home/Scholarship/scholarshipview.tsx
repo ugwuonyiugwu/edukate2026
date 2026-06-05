@@ -13,7 +13,7 @@ export const ScholarshipFeed = () => {
     <div className="space-y-3 w-full max-w-4xl mx-auto p-2">
       {/* 1. HEADER BANNER */}
       <div className="relative w-full overflow-hidden mb-6 rounded-xl shadow-sm border border-slate-200 
-        aspect-[3/1] sm:aspect-[4/1] lg:aspect-[7/2] min-h-[120px] sm:min-h-[160px]">
+        aspect-3/1 sm:aspect-4/1 lg:aspect-7/2 min-h-30 sm:min-h-40">
         <Image
           src="/backgroud-images/scholarship-header.png" 
           fill
@@ -30,7 +30,7 @@ export const ScholarshipFeed = () => {
           <Card className="relative flex flex-row items-center border border-slate-100 shadow-sm overflow-hidden h-16 sm:h-20 transition-all group-hover:border-primary/40 group-hover:shadow-md cursor-pointer flex-nowrap">
             
             {/* LEFT: Amount Section with Perforation */}
-            <div className="flex items-center justify-center px-3 sm:px-6 h-full bg-slate-50/40 min-w-[95px] sm:min-w-[140px] border-r border-dashed border-slate-200 relative shrink-0">
+            <div className="flex items-center justify-center px-3 sm:px-6 h-full bg-slate-50/40 min-w-23.75 sm:min-w-35 border-r border-dashed border-slate-200 relative shrink-0">
               <h2 className="text-[13px] sm:text-lg font-black text-slate-800 tracking-tighter">
                 ₦{s.amount.toLocaleString()}
               </h2>
