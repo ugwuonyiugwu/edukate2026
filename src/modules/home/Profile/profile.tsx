@@ -3,15 +3,22 @@ import { trpc } from "@/trpc/client";
 import { useForm } from "react-hook-form";
 import { Camera, MapPin } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export const ProfileForm = () => {
+  const router = useRouter();
   const utils = trpc.useUtils();
   const { data: user } = trpc.users.getOne.useQuery();
   
   const update = trpc.users.updateProfile.useMutation({
     onSuccess: () => {
       utils.users.getOne.invalidate();
-      alert("Profile updated!");
+      toast.success("Profile updated successfully!");
+      router.push("/dashboard");
+    },
+    onError: (err) => {
+      toast.error("Failed to update profile: " + err.message);
     }
   });
 
@@ -28,9 +35,8 @@ export const ProfileForm = () => {
   });
 
   return (
-   
     <div className="min-h-screen bg-white sm:bg-gray-100/50 sm:py-10"> 
-      <div className="max-w-2xl mx-auto bg-white sm:shadow-md sm:rounded-3xl sm:border border-gray-100 overflow-hidden">
+      <div className="max-w-2xl mx-auto bg-white sm:shadow-md sm:rounded-sm sm:border border-gray-100 overflow-hidden">
         
         <div className="p-5 sm:p-10">
           
@@ -120,7 +126,6 @@ export const ProfileForm = () => {
               </div>
             </div>
 
-            {/* Sticky/Fixed Buttons on Mobile */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-6 sm:pt-10">
               <button 
                 type="submit" 
@@ -129,7 +134,11 @@ export const ProfileForm = () => {
               >
                 {update.isPending ? "Saving..." : "Save Profile"}
               </button>
-              <button type="button" className="order-2 sm:order-1 flex-1 bg-white text-gray-400 font-bold py-4 rounded-xl border border-gray-100 active:bg-gray-50 transition-all">
+              <button 
+                type="button" 
+                onClick={() => router.push("/dashboard")}
+                className="order-2 sm:order-1 flex-1 bg-white text-gray-400 font-bold py-4 rounded-xl border border-gray-100 active:bg-gray-50 transition-all"
+              >
                 Cancel
               </button>
             </div>
@@ -138,4 +147,4 @@ export const ProfileForm = () => {
       </div>
     </div>
   );
-}
+};

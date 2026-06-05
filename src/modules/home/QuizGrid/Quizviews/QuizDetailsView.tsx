@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/card';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
+import { AppAlertDialog } from '@/components/reusablealert/app-alert-dialog';
 
 // --- TYPES ---
 interface ParticipantUser {
@@ -53,6 +54,7 @@ interface ActionStageProps {
 export const QuizDetailsView = ({ quizId }: { quizId: string }) => {
   const router = useRouter();
   const [msLeft, setMsLeft] = useState<number | null>(null);
+  const [isJoinAlertOpen, setIsJoinAlertOpen] = useState(false);
   const utils = trpc.useUtils();
 
   const { data, isLoading } = trpc.quiz.getOne.useQuery({ id: quizId });
@@ -103,15 +105,8 @@ export const QuizDetailsView = ({ quizId }: { quizId: string }) => {
   const twoMinsInMs = 2 * 60 * 1000;
   const currentMs = msLeft ?? 0;
 
-  // --- UPDATED STAGE LOGIC ---
-  
-  // 1. Joining allowed until 1 hour before start
   const isJoinActive = currentMs > hourInMs;
-  
-  // 2. Upload button activated when < 1 hour AND > 2 minutes
   const isUploadActive = hasJoined && currentMs < hourInMs && currentMs > twoMinsInMs;
-  
-  // 3. Quiz activates automatically at 00:00:00
   const isTimeReady = currentMs === 0;
   const canEnterQuiz = hasJoined && isTimeReady;
 
@@ -183,9 +178,9 @@ export const QuizDetailsView = ({ quizId }: { quizId: string }) => {
               active={isJoinActive && !hasJoined}
               icon={UserPlus}
               label={hasJoined ? "Joined" : "Join"}
-              desc={hasJoined ? "Access granted" : "Deduct points to enter"}
+              desc={hasJoined ? "Access granted" : `Deduct ${quiz.points} 💎 to enter`}
               status={isJoinActive ? "Open" : "Closed"}
-              onClick={() => joinMutation.mutate({ quizId })}
+              onClick={() => setIsJoinAlertOpen(true)}
               isLoading={joinMutation.isPending}
               isDone={hasJoined}
             />
@@ -195,7 +190,7 @@ export const QuizDetailsView = ({ quizId }: { quizId: string }) => {
               label="Upload"
               desc={isUploadActive ? "Upload documents" : currentMs <= twoMinsInMs ? "Window Closed" : "Locked"}
               status={isUploadActive ? "Active" : "Locked"}
-              onClick={() => router.push(`/quizathon/${quizId}/submit`)}
+              onClick={() => router.push(`/quizgrid/${quizId}/submit`)}
             />
             <ActionStage
               active={canEnterQuiz}
@@ -204,7 +199,7 @@ export const QuizDetailsView = ({ quizId }: { quizId: string }) => {
               label={isTimeReady ? "Start Quiz" : "Locked"}
               desc={isTimeReady ? "Begin competition now!" : "Waiting for clock..."}
               status={isTimeReady ? "Live" : "Standby"}
-              onClick={() => router.push(`/quizathon/${quizId}/questions`)}
+              onClick={() => router.push(`/quizgrid/${quizId}/questions`)}
             />
           </div>
         </div>
@@ -221,7 +216,7 @@ export const QuizDetailsView = ({ quizId }: { quizId: string }) => {
             <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
               {quiz.participants.map((p) => (
                 <div key={p.clerkId} className="flex items-center justify-between group p-x-2 p-1 hover:border-slate-100 transition-all">
-                  <div className="flex items-center  gap-3">
+                  <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-sm bg-indigo-100 flex uppercase items-center justify-center text-indigo-600 font-black text-xs">
                       {p.user?.username?.[0] || 'Unknown'}
                     </div>
@@ -251,6 +246,15 @@ export const QuizDetailsView = ({ quizId }: { quizId: string }) => {
           </Card>
         </div>
       </main>
+
+      <AppAlertDialog
+        isOpen={isJoinAlertOpen}
+        onOpenChange={setIsJoinAlertOpen}
+        title="Confirm Participation"
+        message={`This will deduct ${quiz.points} 💎 from your balance. Are you ready to join this mission?`}
+        buttonText="Confirm Join"
+        onConfirm={() => joinMutation.mutate({ quizId })}
+      />
     </div>
   );
 };
@@ -272,7 +276,7 @@ function ActionStage({ active, icon: Icon, label, desc, onClick, isLoading, isDo
     >
       <div className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all shrink-0 ${
         isLive ? 'bg-white text-indigo-600' : (active || isDone ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-400')
-             }`}>
+              }`}>
         {isLoading ? <Loader2 size={20} className="animate-spin" /> : isDone ? <CheckCircle2 size={20} /> : <Icon size={20} />}
       </div>
       

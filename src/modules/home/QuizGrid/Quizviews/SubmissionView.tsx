@@ -126,8 +126,8 @@ export const SubmissionView = ({ quizId }: { quizId: string }) => {
           
           <div className="lg:col-span-7 space-y-12">
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-600">
-                <Type size={12} /> The Challenge
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white">
+                <Type size={12} /> Input your questions(Max=20)
               </div>
               <Textarea 
                 name="question"

@@ -6,9 +6,13 @@ import { Suspense } from "react";
 export const dynamic = 'force-dynamic';
 
 const Page = async () => {
-  void trpc.users.getOne.prefetch();
-  void trpc.documents.getLibrary.prefetch();
-  void trpc.documents.getMyDocuments.prefetch();
+  // 1. Await only the critical data required for the initial paint.
+  // Using 'await' ensures the server processes this before attempting to hydrate.
+  await trpc.users.getOne.prefetch();
+
+  // 2. We remove the document prefetches from the server.
+  // These will now trigger automatically via 'useQuery' inside <DashboardView />.
+  // This staggers the requests, preventing the concurrency limit burst.
 
   return (
     <HydrateClient>

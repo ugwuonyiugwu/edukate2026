@@ -1,6 +1,6 @@
 'use client';
 import { trpc } from "@/trpc/client";
-import { BookOpen, Trophy, GraduationCap, Loader2, Image as ImageIcon, BookOpenText, Layers, Gamepad2, PenTool, TrophyIcon } from "lucide-react";
+import { Loader2, Image as ImageIcon, BookOpenText, Layers, Gamepad2, PenTool, TrophyIcon } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { useCallback, useEffect, useState } from 'react';
@@ -25,60 +25,49 @@ const CarouselFrame = ({ children, className = "" }: CarouselFrameProps) => (
   </div>
 );
 
-
 export const DashboardView = () => {
   const router = useRouter();
   const utils = trpc.useUtils();
   const { startUpload } = useUploadThing("libraryThumbnailUploader");
   
-  // Data Fetching
+  // Data Fetching: user is prefetched, library is fetched on client
   const { data: user } = trpc.users.getOne.useQuery();
   const { data: library, isLoading: isLibLoading } = trpc.documents.getLibrary.useQuery();
   
   // Library Creation States
   const [isLibDialogOpen, setIsLibDialogOpen] = useState(false);
   const [libName, setLibName] = useState("");
-  const [libThumbnail, setLibThumbnail] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false); 
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-
-
   // Embla Carousel Setup
   const [emblaRef, emblaApi] = useEmblaCarousel(
-    { 
-      loop: true, 
-      slidesToScroll: 1,
-      align: 'start'
-    }, 
+    { loop: true, slidesToScroll: 1, align: 'start' }, 
     [Autoplay({ delay: 5000 })]
   );
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
   }, [emblaApi]);
 
   useEffect(() => {
     if (!emblaApi) return;
     onSelect();
     emblaApi.on('select', onSelect);
-    emblaApi.on('reInit', onSelect); // Added reInit to handle responsive changes
+    emblaApi.on('reInit', onSelect);
     return () => { 
       emblaApi.off('select', onSelect); 
       emblaApi.off('reInit', onSelect); 
     };
   }, [emblaApi, onSelect]);
 
- // Mutations
+  // Mutations
   const createLibMutation = trpc.documents.createLibrary.useMutation({
     onSuccess: () => {
       utils.documents.getLibrary.invalidate();
       setIsLibDialogOpen(false);
-      setIsUploading(false); // Ensure loader resets
+      setIsUploading(false);
       router.push("/library");
     },
     onError: () => {
@@ -87,45 +76,37 @@ export const DashboardView = () => {
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (file) {
-    setPendingFile(file);
-    // Create a local URL for the image preview
-    setPreviewUrl(URL.createObjectURL(file));
-  }
-};
-
- const handleCreateLibrary = async () => {
-  setIsUploading(true);
-  try {
-    let finalUrl: string | null = null;
-
-    if (pendingFile) {
-      const res = await startUpload([pendingFile]);
-      if (res?.[0]) {
-        // Use the 'url' property as shown in your log
-        finalUrl = res[0].url; 
-      }
+    const file = e.target.files?.[0];
+    if (file) {
+      setPendingFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
     }
-    
-    createLibMutation.mutate({
-      name: libName,
-      thumbnailUrl: finalUrl,
-    });
-  } catch (err) {
-    console.error("Mutation failed:", err);
-    setIsUploading(false);
-  }
-};
+  };
+
+  const handleCreateLibrary = async () => {
+    setIsUploading(true);
+    try {
+      let finalUrl: string | null = null;
+      if (pendingFile) {
+        const res = await startUpload([pendingFile]);
+        if (res?.[0]) finalUrl = res[0].url; 
+      }
+      createLibMutation.mutate({ name: libName, thumbnailUrl: finalUrl });
+    } catch (err) {
+      setIsUploading(false);
+    }
+  };
+
   const handleLibraryClick = (e: React.MouseEvent) => {
-  if (library) {
-    router.push(`/library`);
-  } 
-  else if (!isLibLoading) {
-    e.preventDefault();
-    setIsLibDialogOpen(true);
-  }
-};
+    if (isLibLoading) return; // Prevent clicking while fetching
+    if (library) {
+      router.push(`/library`);
+    } else {
+      e.preventDefault();
+      setIsLibDialogOpen(true);
+    }
+  };
+
   const recentItems = [
     { id: '1', title: 'Fundamentals of History', initial: 'H', color: 'text-blue-600' },
     { id: '2', title: 'New School Physics', initial: 'P', color: 'text-blue-800' },
@@ -205,21 +186,21 @@ export const DashboardView = () => {
   <h3 className="text-lg font-bold mb-4">Quick Action</h3>
   <div className="grid grid-cols-2 gap-4">
     
-    <button onClick={() => router.push('/practice')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-orange-200 shadow-sm hover:shadow-md transition-all active:scale-95">
+    <button onClick={() => router.push('/quizathon')} className="bg-white p-5 rounded-sm lg:pb-8 border relative flex flex-col items-center border-orange-200 shadow-sm hover:shadow-md transition-all active:scale-95">
       <div className="text-orange-500 mx-auto mb-2"><TrophyIcon size={24} /></div>
       <h3 className="font-bold text-gray-800">Quizathon</h3>
       <p className="text-xs text-gray-500">Join our monthly quizathon</p>
       <span className="absolute top-2 right-2 text-blue-700 font-medium">10%</span>
     </button>
 
-    <button onClick={() => router.push('/battlefield')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-blue-200 shadow-sm hover:shadow-md transition-all active:scale-95">
+    <button onClick={() => router.push('/quizgrid')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-blue-200 shadow-sm hover:shadow-md transition-all active:scale-95">
       <div className="text-blue-500 mb-2"><Gamepad2 size={24} /></div>
       <h3 className="font-bold text-gray-800">Battlefield</h3>
       <p className="text-xs text-gray-500">Challenge others and win points</p>
       <span className="absolute top-2 right-2 text-blue-700 font-medium">10%</span>
     </button>
 
-    <button onClick={() => router.push('/study-pal')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-blue-400 shadow-sm hover:shadow-md transition-all active:scale-95">
+    <button onClick={() => router.push('/classes')} className="bg-white p-5 rounded-sm border relative flex flex-col items-center border-blue-400 shadow-sm hover:shadow-md transition-all active:scale-95">
       <div className="text-blue-400 mb-2"><BookOpenText size={24} /></div>
       <h3 className="font-bold text-gray-800">Courses</h3>
       <p className="text-xs text-gray-500">Access our copyright free contents</p>

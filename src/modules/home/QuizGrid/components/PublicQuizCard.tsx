@@ -90,7 +90,7 @@ export function PublicQuizCard({ id, title, category, points, date, time }: Publ
   
             {/* Right: Actions */}
             <div className="flex items-center gap-2">
-              <Link href={`/quizathon/${id}`} className="flex-1">
+              <Link href={`/quizgrid/${id}`} className="flex-1">
                 <Button variant="outline" className="h-9 px-4 border-slate-200 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 text-[11px] font-black uppercase rounded-lg transition-all gap-2">
                   View <ArrowRight size={14} />
                 </Button>

@@ -69,7 +69,7 @@ const SignInPage = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50/40 px-4">
       
       {/* Width updated to match Sign-Up for consistency */}
-      <Card className="w-full max-w-120 border border-blue-200 shadow-[0_20px_50px_rgba(8,112,184,0.08)] rounded-lg bg-white overflow-hidden transition-all duration-300">
+      <Card className="w-full max-w-120 border border-blue-200 shadow-[0_20px_50px_rgba(8,112,184,0.08)] rounded-sm bg-white overflow-hidden transition-all duration-300">
         <CardContent className="p-8 md:p-12">
           
           {/* Tabs UI */}
@@ -77,7 +77,7 @@ const SignInPage = () => {
             <button type="button" className="pb-4 text-2xl font-bold text-blue-600 border-b-4 border-blue-600">
               Log in
             </button>
-            <Link href="/sign-up/sign-up">
+            <Link href="/sign-up">
               <button type="button" className="pb-4 text-2xl font-bold text-slate-300 hover:text-slate-400 transition-all">
                 Sign Up
               </button>

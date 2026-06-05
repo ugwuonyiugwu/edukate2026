@@ -40,13 +40,13 @@ export default function DiscoveryPage() {
               </Link>
             </div>
 
-      <div className="mb-12 mt-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="mb-12 mt- flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
             Explore Libraries
           </h1>
           <p className="text-gray-500 font-medium mt-1">
-            Browse through cumulative knowledge shared by the community.
+            Browse through cumulative knowledge shared by our best facilitators.
           </p>
         </div>
         
