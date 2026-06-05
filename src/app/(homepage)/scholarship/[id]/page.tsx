@@ -1,7 +1,7 @@
 import { HydrateClient, trpc } from "@/trpc/server"; // Ensure trpc is imported
 import { Suspense } from "react";
 import { ScholarshipDetailContent } from "@/modules/home/Scholarship/Descriptionview";
-import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/modules/home/ui/components/Logospinal";
 
 // 1. Change to async and define Props
 export default async function ScholarshipPage({ 
@@ -19,7 +19,7 @@ export default async function ScholarshipPage({
   return (
     <HydrateClient>
       <main className="max-w-3xl mx-auto p-6 py-12">
-        <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="animate-spin" /></div>}>
+        <Suspense fallback={<LoadingSpinner/>}>
           <ScholarshipDetailContent id={scholarshipId} />
         </Suspense>
       </main>

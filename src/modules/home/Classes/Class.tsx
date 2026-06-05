@@ -4,6 +4,7 @@ import React, { Suspense } from 'react';
 import Image from 'next/image';
 import { BookOpen, Zap, Crown, ArrowRight, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { LoadingSpinner } from '../ui/components/Logospinal';
 
 const LEVELS = [
   {
@@ -34,11 +35,7 @@ const LEVELS = [
 
 export const ClassEnrollmentGrid = () => {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#e5e7eb]">
-        <Loader2 className="animate-spin text-blue-600" size={40} />
-      </div>
-    }>
+    <Suspense fallback={<LoadingSpinner/>}>
       <EnrollmentContent />
     </Suspense>
   );
@@ -48,7 +45,7 @@ const EnrollmentContent = () => {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-[#e5e7eb] flex flex-col items-center p-4 sm:p-6 lg:p-8 gap-6">
+    <div className="min-h-screen bg-[#e5e7eb] flex flex-col items-center py-4 sm:p-6 lg:py-8 gap-6">
       
       {/* Banner Section - Optimized for all screen shapes */}
       <div className="max-w-7xl w-full">
@@ -69,7 +66,6 @@ const EnrollmentContent = () => {
         </div>
       </div>
 
-      {/* Grid Section - Adjusted for Tablet (iPad) breakpoints */}
       <div className="max-w-7xl w-full grid grid-cols-1 
         sm:grid-cols-2    /* Two columns for iPads in portrait */
         lg:grid-cols-3    /* Three columns for Large Screens/iPad Landscape */

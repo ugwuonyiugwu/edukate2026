@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { trpc } from "@/trpc/client";
 import { formatDistanceToNow } from "date-fns";
 import { Bell, CheckCircle2, Loader2 } from "lucide-react";
+import { LoadingSpinner } from "../ui/components/Logospinal";
 
 export const NotificationPage = () => {
   const utils = trpc.useUtils();
@@ -25,9 +26,7 @@ export const NotificationPage = () => {
   }, [notes, markAsRead]);
 
   if (isLoading) return (
-    <div className="flex h-[60vh] w-full items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-green-500" />
-    </div>
+    <LoadingSpinner/>
   );
 
   return (

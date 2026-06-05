@@ -10,7 +10,7 @@ export const ScholarshipFeed = () => {
   const [scholarships] = trpc.scholarship.getAllAdmin.useSuspenseQuery();
 
   return (
-    <div className="space-y-3 w-full max-w-4xl mx-auto p-2">
+    <div className="space-y-3 w-full mt-4 max-w-4xl mx-auto p-2">
       {/* 1. HEADER BANNER */}
       <div className="relative w-full overflow-hidden mb-6 rounded-xl shadow-sm border border-slate-200 
         aspect-3/1 sm:aspect-4/1 lg:aspect-7/2 min-h-30 sm:min-h-40">

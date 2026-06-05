@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { HydrateClient, trpc } from "@/trpc/server"; 
 import { LiveExamPortal } from "@/modules/home/Quizathon/quizexam";
-import { Loader2, ShieldAlert } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
+import { LoadingSpinner } from "@/modules/home/ui/components/Logospinal";
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,7 @@ export default async function QuizDashboardPage() {
 
     return (
       <HydrateClient>
-        <Suspense fallback={"Loadind.."}>
+        <Suspense fallback={<LoadingSpinner/>}>
           <LiveExamPortal 
             quizEventId={quizEventId}
             initialSecondsRemaining={secondsRemaining}

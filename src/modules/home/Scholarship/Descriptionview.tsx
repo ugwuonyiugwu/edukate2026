@@ -12,7 +12,7 @@ export const ScholarshipDetailContent = ({ id }: { id: number }) => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 break-words">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 wrap-break-words">
             {data.name}
           </h1>
           <p className="text-lg sm:text-xl text-[#28a745] font-bold mt-2">
@@ -37,7 +37,7 @@ export const ScholarshipDetailContent = ({ id }: { id: number }) => {
           <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
             Scholarship Details
           </h2>
-          <p className="text-slate-700 text-sm sm:text-base whitespace-pre-wrap leading-relaxed font-medium break-words">
+          <p className="text-slate-700 text-sm sm:text-base whitespace-pre-wrap leading-relaxed font-medium wrap-break-words">
             {data.description}
           </p>
         </div>

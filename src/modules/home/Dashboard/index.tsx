@@ -114,7 +114,7 @@ export const DashboardView = () => {
   ];
 
   return (
-    <div className="max-w-full mx-auto px-2 sm:px-4 bg-white min-h-screen">
+    <div className="max-w-full mx-auto px-2 my-4 sm:px-4 bg-white min-h-screen">
       {/* Header Section */}
       <div className="flex justify-between items-start mb-2 gap-4">
         <div>

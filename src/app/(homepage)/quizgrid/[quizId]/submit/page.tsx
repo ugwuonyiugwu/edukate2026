@@ -1,6 +1,8 @@
 // src/app/(homepage)/quizathon/[quizId]/submit/page.tsx
 import { HydrateClient, trpc } from "@/trpc/server"; 
 import { SubmissionView } from "@/modules/home/QuizGrid/Quizviews/SubmissionView";
+import { Suspense } from "react";
+import { LoadingSpinner } from "@/modules/home/ui/components/Logospinal";
 
 // Note: Ensure the type matches that params is a Promise
 export default async function SubmissionPage({ 
@@ -17,7 +19,9 @@ export default async function SubmissionPage({
 
   return (
     <HydrateClient>
-      <SubmissionView quizId={quizId} />
+      <Suspense fallback={<LoadingSpinner/>}>
+        <SubmissionView quizId={quizId} />
+      </Suspense>
     </HydrateClient>
   );
 }
