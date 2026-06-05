@@ -15,7 +15,7 @@ interface AppAlertDialogProps {
   title?: string;
   message: string;
   buttonText?: string;
-  onConfirm?: () => void; // ✅ Added optional confirm callback type
+  onConfirm?: () => void;
 }
 
 export function AppAlertDialog({
@@ -24,11 +24,16 @@ export function AppAlertDialog({
   title = "Notification",
   message,
   buttonText = "OK",
-  onConfirm, // ✅ Destructured the callback function
+  onConfirm,
 }: AppAlertDialogProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-md rounded-lg border border-slate-100 shadow-2xl bg-white gap-0 p-0 overflow-hidden">
+      {/* Responsive classes: 
+        w-[90vw] ensures it fits on mobile with a small margin.
+        max-w-md keeps it clean on desktop.
+        rounded-lg stays consistent.
+      */}
+      <AlertDialogContent className="w-[90vw] max-w-md rounded-lg border border-slate-100 shadow-2xl bg-white gap-0 p-0 overflow-hidden">
         <div className="px-6 pt-6 pb-2">
           <AlertDialogTitle className="text-xl font-bold text-slate-800">
             {title}
@@ -41,14 +46,15 @@ export function AppAlertDialog({
           </AlertDialogDescription>
         </div>
         
-        <div className="px-6 py-6 flex justify-end gap-3">
-          {/* If an onConfirm callback is present, we show a Cancel button 
-            automatically to provide a safe exit out of the action.
-          */}
+        {/* Responsive buttons:
+           flex-col-reverse on mobile (small screens) stacks buttons.
+           flex-row on md+ screens aligns them side-by-side.
+        */}
+        <div className="px-6 py-6 flex flex-col-reverse sm:flex-row justify-end gap-3">
           {onConfirm && (
             <AlertDialogCancel 
               onClick={() => onOpenChange(false)}
-              className="px-5 py-2 rounded-md font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 border-0 transition-colors h-auto text-sm"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-md font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 border-0 transition-colors h-auto text-sm"
             >
               Cancel
             </AlertDialogCancel>
@@ -62,7 +68,7 @@ export function AppAlertDialog({
                 onOpenChange(false);
               }
             }}
-            className="px-6 py-2 rounded-md font-medium text-white bg-slate-900 hover:bg-slate-800 transition-colors shadow-sm h-auto text-sm"
+            className="w-full sm:w-auto px-6 py-2.5 rounded-md font-medium text-white bg-slate-900 hover:bg-slate-800 transition-colors shadow-sm h-auto text-sm"
           >
             {buttonText}
           </AlertDialogAction>

@@ -337,4 +337,54 @@ export const quizRouter = createTRPCRouter({
         
       return { eliminated: active[0] };
     }),
+
+    submitAllQuestions: protectedProcedure
+  .input(z.object({
+    quizId: z.string(),
+    questions: z.array(z.object({
+      questionText: z.string().min(2),
+      imageUrl: z.string().optional(),
+      correctAnswer: z.string().min(1),
+      wrongAnswer1: z.string().min(1),
+      wrongAnswer2: z.string().min(1),
+      wrongAnswer3: z.string().min(1),
+    }))
+  }))
+  .mutation(async ({ ctx, input }) => {
+    const userId = ctx.clerkUserId!;
+    
+    // 1. Validate Quiz and Timing
+    const quiz = await ctx.db.query.quizzes.findFirst({ where: eq(quizzes.id, input.quizId) });
+    if (!quiz) throw new TRPCError({ code: "NOT_FOUND" });
+
+    const startTime = new Date(`${quiz.date}T${quiz.time}:00`).getTime();
+    if (Date.now() > startTime) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "Submission period has ended." });
+    }
+
+    // 2. Validate Limit (Prevent exceeding 20)
+    const existingCount = await ctx.db
+      .select({ count: count() })
+      .from(submissions)
+      .where(and(eq(submissions.quizId, input.quizId), eq(submissions.clerkId, userId)));
+
+    if ((existingCount[0]?.count ?? 0) + input.questions.length > 20) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "Total submissions cannot exceed 20." });
+    }
+
+    // 3. Bulk Insert
+    return await ctx.db.insert(submissions).values(
+      input.questions.map((q) => ({
+        quizId: input.quizId,
+        clerkId: userId,
+        questionText: q.questionText,
+        imageUrl: q.imageUrl,
+        correctAnswer: q.correctAnswer,
+        wrongAnswer1: q.wrongAnswer1,
+        wrongAnswer2: q.wrongAnswer2,
+        wrongAnswer3: q.wrongAnswer3,
+      }))
+    );
+  }),
 });
+
