@@ -9,6 +9,7 @@ import { teacherRouter } from '@/modules/Admin/Teachers/server/procedure';
 import { adminQuizRouter } from '@/modules/Admin/AdminQuizathon/server/procedure';
 import { userQuizRouter } from '@/modules/home/Quizathon/server/procedure';
 import { upgradeRouter } from '@/modules/Admin/UsersManagement/UpgradeUser/server/procedure';
+import { notificationRouter } from '@/modules/home/Notification/server/procedure';
 
 export const appRouter = createTRPCRouter({
  
@@ -22,6 +23,7 @@ export const appRouter = createTRPCRouter({
  adminquizathon: adminQuizRouter,
  userquizathon: userQuizRouter,
  userupgrade: upgradeRouter,
+ notifications: notificationRouter,
 });
 
 export type AppRouter = typeof appRouter; 

@@ -260,3 +260,11 @@ export const quizQuestions = pgTable("quiz_questions", {
   correctAnswer: text("correct_answer").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const notifications = pgTable("notifications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => users.id).notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

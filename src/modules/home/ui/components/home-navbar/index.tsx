@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { SidebarTrigger } from '@/components/ui/sidebar'
+import { SidebarTrigger } from '@/components/ui/sidebar';
 import { UserAvatar } from '@/components/reusableavatar/avatar';
 import { Bell, User, Wallet, LogOut, ChevronDown } from 'lucide-react';
 import {
@@ -12,12 +12,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { SignOutButton } from "@clerk/nextjs";
+import { trpc } from "@/trpc/client";
 
 interface HomeNavbarProps {
   activeTitle: string;
 }
 
 export function HomeNavbar({ activeTitle }: HomeNavbarProps) {
+  // Check if there are any unread notifications
+  const { data: hasUnread } = trpc.notifications.hasUnread.useQuery();
+  const utils = trpc.useUtils();
+
   return (
     <nav className="flex h-16 items-center justify-between w-full px-4 md:px-8 bg-blue-600 border-b border-blue-500 sticky top-0 z-40 shadow-md shadow-black/20">
       <div className="flex items-center gap-2 md:gap-4 overflow-hidden">
@@ -31,10 +36,16 @@ export function HomeNavbar({ activeTitle }: HomeNavbarProps) {
       </div>
       
       <div className="flex items-center gap-4 md:gap-8 shrink-0">
-        <button className="p-2 text-white hover:bg-blue-700 rounded-full transition-colors relative">
+        <Link 
+          href="/notifications"
+          onMouseEnter={() => utils.notifications.getMyNotifications.prefetch()}
+          className="p-2 text-white hover:bg-blue-700 rounded-full transition-colors relative"
+        >
           <Bell className="h-6 w-6" />
-          <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border border-blue-600" />
-        </button>
+          {hasUnread && (
+            <span className="absolute top-1 right-1.5 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-blue-600 animate-pulse" />
+          )}
+        </Link>
 
         {/* User Dropdown */}
         <DropdownMenu>
@@ -72,5 +83,5 @@ export function HomeNavbar({ activeTitle }: HomeNavbarProps) {
         </DropdownMenu>
       </div>
     </nav>
-  )
+  );
 }

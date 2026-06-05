@@ -24,16 +24,17 @@ export const UserRoleManager = () => {
       <h2 className="text-xl font-medium text-gray-900 mb-10">
           Upgrade / Downgrade User Account
       </h2>
-      <div className="w-full max-w-md  bg-gray-50 p-10 rounded-sm shadow-sm border border-gray-100">
+      <div className="w-full max-w-md bg-white p-10 rounded-sm shadow-sm border border-gray-100">
 
         <div className="space-y-10">
+          {/* User Selection */}
           <div className="relative pt-2">
-            <Label className="absolute -top-1 left-3 z-10 bg-white px-1 text-[11px] font-bold text-gray-400 copitalized tracking-wide">
+            <Label className="absolute -top-1 left-3 z-10 bg-white px-1 text-[12px] font-bold text-gray-400 capitalize tracking-wide">
               User Username
             </Label>
             <Select onValueChange={(val) => setSelectedUser(users?.find(u => u.id === val))}>
-              <SelectTrigger className="h-20 w-full rounded-sm border border-gray-200 px-4 py-6 font-bold text-gray-900 shadow-none focus:ring-0">
-                <SelectValue placeholder="Name" />
+              <SelectTrigger className="h-16 w-full rounded-sm border py-6 border-gray-200 px-4 font-bold text-gray-900 shadow-none focus:ring-0">
+                <SelectValue placeholder="Select a user..." />
               </SelectTrigger>
               <SelectContent className="rounded-sm">
                 {users?.map((user) => (
@@ -43,12 +44,13 @@ export const UserRoleManager = () => {
             </Select>
           </div>
 
+          {/* Role Selection */}
           <div className="relative pt-2">
-            <Label className="absolute -top-1.5 left-3 z-10 bg-white px-1 text-[11px] font-bold text-gray-400 capitalize tracking-wide">
+            <Label className="absolute -top-1 left-3 z-10 bg-white px-1 text-[12px] font-bold text-gray-400 capitalize tracking-wide">
               Account Role
             </Label>
             <Select value={role} onValueChange={(val: any) => setRole(val)}>
-              <SelectTrigger className="h-14 w-full rounded-sm border border-gray-200 px-4 py-6 font-bold text-gray-900 shadow-none focus:ring-0">
+              <SelectTrigger className="h-16 w-full rounded-sm border py-6 border-gray-200 px-4 font-bold text-gray-900 shadow-none focus:ring-0">
                 <SelectValue placeholder="Select Role" />
               </SelectTrigger>
               <SelectContent className="rounded-sm">
@@ -59,14 +61,24 @@ export const UserRoleManager = () => {
             </Select>
           </div>
 
+          {/* Notification Toggle */}
           <div className="flex items-center justify-between px-1 pt-2">
-            <Label className="text-sm font-bold text-gray-700">Email Notification</Label>
+            <Label className="text-sm font-bold text-gray-700">Send Notification</Label>
             <Switch checked={notify} onCheckedChange={setNotify} />
           </div>
 
+          {/* Proceed Button */}
           <Button 
             className="w-full h-14 bg-green-500 hover:bg-green-600 rounded-sm font-bold text-white shadow-none transition-all active:scale-[0.98]"
-            onClick={() => selectedUser && updateRole.mutate({ targetUserId: selectedUser.id, newRole: role })}
+            onClick={() => {
+              if (selectedUser) {
+                updateRole.mutate({ 
+                  targetUserId: selectedUser.id, 
+                  newRole: role,
+                  notify: notify // Passed the toggle state here
+                });
+              }
+            }}
             disabled={!selectedUser || updateRole.isPending}
           >
             {updateRole.isPending ? <Loader2 className="animate-spin" /> : "Proceed"}

@@ -28,7 +28,7 @@ const userNavItems = [
   { title: "Library", icon: Library, url: "/libraries" },
   { title: "QuizGrid", icon: Trophy, url: "/quizgrid" },
   { title: "Scholarship", icon: GraduationCap, url: "/scholarship" },
-  { title: "Notification", icon: Bell, url: "/dashboard/notifications" },
+  { title: "Notification", icon: Bell, url: "/notifications" },
   { title: "Class", icon: School, url: "/classes" },
   { title: "Quizathon", icon: Trophy, url: "/quizathon" },
   { title: "Teachers", icon: Presentation, url: "/teachers" },
