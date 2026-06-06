@@ -34,7 +34,7 @@ export const HomeLayout = ({ children, role }: HomeLayoutProps) => {
     if (newMode) {
       router.push("/dashboard");
     } else {
-      router.push("/admin");
+      router.push("/admin/dashboard");
     }
   };
 

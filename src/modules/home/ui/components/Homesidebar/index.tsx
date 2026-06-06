@@ -3,6 +3,10 @@
 import { 
   LayoutDashboard, User, Library, Trophy, GraduationCap, 
   Bell, LogOut, School, Presentation, ShieldCheck, ArrowLeftRight,
+  User2Icon,
+  Users2Icon,
+  School2Icon,
+  School2,
 } from "lucide-react"
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
@@ -35,12 +39,13 @@ const userNavItems = [
 ];
 
 const adminNavItems = [
-  { title: "Dashboard", icon: ShieldCheck, url: "/admin" },
+  { title: "Dashboard", icon: ShieldCheck, url: "/admin/dashboard" },
   { title: "Quizathon", icon: Trophy, url: "/admin/quizathon" },
   { title: "Teachers", icon: Presentation, url: "/admin/teachers" },
   { title: "Scholarship", icon: GraduationCap, url: "/admin/scholarship" },
-  { title: "Classes", icon: GraduationCap, url: "/admin/classes" },
-  { title: "upgrade user", icon: GraduationCap, url: "/admin/userupgrade" },
+  { title: "Classes", icon: School2, url: "/admin/classes" },
+  { title: "Upgrade user", icon: User2Icon, url: "/admin/userupgrade" },
+  { title: "Users", icon: Users2Icon, url: "/admin/users" },
 ];
 
 export const HomeSidebar = ({ 

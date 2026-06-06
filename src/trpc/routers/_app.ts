@@ -10,10 +10,12 @@ import { adminQuizRouter } from '@/modules/Admin/AdminQuizathon/server/procedure
 import { userQuizRouter } from '@/modules/home/Quizathon/server/procedure';
 import { upgradeRouter } from '@/modules/Admin/UsersManagement/UpgradeUser/server/procedure';
 import { notificationRouter } from '@/modules/home/Notification/server/procedure';
+import { adminRouter } from '@/modules/Admin/Dashboard/server/procedure';
 
 export const appRouter = createTRPCRouter({
  
  users: userRouter,
+ admin: adminRouter,
  documents: documentRouter,
  quiz: quizRouter,
  classes: classRouter,
