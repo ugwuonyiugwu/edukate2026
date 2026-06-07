@@ -82,7 +82,7 @@ const SignUpFormContent = () => {
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
         toast.success("Account created!", { description: `Welcome as a ${role}!` });
-        router.push("/dashboard");
+        router.push("/dashboard?showAlert=true");
       }
     } catch (err) {
       const clerkError = err as ClerkError;

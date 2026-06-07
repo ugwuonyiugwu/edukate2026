@@ -11,6 +11,7 @@ import { userQuizRouter } from '@/modules/home/Quizathon/server/procedure';
 import { upgradeRouter } from '@/modules/Admin/UsersManagement/UpgradeUser/server/procedure';
 import { notificationRouter } from '@/modules/home/Notification/server/procedure';
 import { adminRouter } from '@/modules/Admin/Dashboard/server/procedure';
+import { settingsRouter } from '@/modules/Admin/Advertizement/Server/Procedure';
 
 export const appRouter = createTRPCRouter({
  
@@ -26,6 +27,7 @@ export const appRouter = createTRPCRouter({
  userquizathon: userQuizRouter,
  userupgrade: upgradeRouter,
  notifications: notificationRouter,
+ settings: settingsRouter,
 });
 
 export type AppRouter = typeof appRouter; 

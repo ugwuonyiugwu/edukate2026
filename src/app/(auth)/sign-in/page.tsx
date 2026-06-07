@@ -48,10 +48,10 @@ const SignInPage = () => {
         
         // Success Toast
         toast.success("Welcome back!", {
-          description: "Signed in to EDUKATE2026 successfully.",
+          description: "Signed in successfully.",
         });
         
-        router.push("/dashboard");
+        router.push("/dashboard?showAlert=true");
       } else {
         console.log("Secondary step required:", result);
       }

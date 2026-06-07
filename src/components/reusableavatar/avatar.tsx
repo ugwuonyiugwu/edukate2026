@@ -52,15 +52,17 @@ export const UserAvatar = ({
           fill 
           sizes={`${size}px`} 
           className="object-cover"
-          priority={size > 100} // Prioritize loading for large profile headers
+          priority={size > 100}
         />
       ) : (
-        <div 
-          className="w-full h-full bg-indigo-600 flex items-center justify-center text-white font-extrabold uppercase select-none"
-          style={{ fontSize: `${fontSize}px` }}
-        >
-          {initials}
-        </div>
+        <Image 
+          src="/profile-default.png "
+          alt={safeName} 
+          fill 
+          sizes={`${size}px`} 
+          className="object-cover"
+          priority={size > 100} 
+        />
       )}
       
       {/* Overlay for editable state */}

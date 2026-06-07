@@ -7,6 +7,8 @@ import {
   Users2Icon,
   School2Icon,
   School2,
+  Settings2Icon,
+  Settings,
 } from "lucide-react"
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
@@ -46,6 +48,7 @@ const adminNavItems = [
   { title: "Classes", icon: School2, url: "/admin/classes" },
   { title: "Upgrade user", icon: User2Icon, url: "/admin/userupgrade" },
   { title: "Users", icon: Users2Icon, url: "/admin/users" },
+  { title: "Setting", icon: Settings, url: "/admin/setting" },
 ];
 
 export const HomeSidebar = ({ 

@@ -56,11 +56,9 @@ export const ourFileRouter = {
       console.log("Upload complete for userId:", metadata.userId);
       return { url: file.url };
     }),
-
-  // 🌟 NEW: Dedicated Quizathon Question Bank Endpoint
+    
   quizathonImage: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
     .middleware(async () => {
-      // Ensure the user is authenticated via Clerk before handling uploads
       const user = await auth();
       if (!user || !user.userId) throw new Error("Unauthorized");
       
@@ -70,9 +68,26 @@ export const ourFileRouter = {
       console.log("Quizathon asset upload completed by user:", metadata.userId);
       console.log("Target Resource URL:", file.url);
       
-      // Returns standard URL payload back to the frontend hook
       return { url: file.url };
     }),
+
+    popupImageUploader: f({ 
+    image: { 
+      maxFileSize: "4MB", 
+      maxFileCount: 1 
+    } 
+  })
+  .middleware(async () => {
+    const user = await auth();
+    if (!user || !user.userId) throw new Error("Unauthorized");
+    
+    return { userId: user.userId };
+  })
+  .onUploadComplete(async ({ metadata, file }) => {
+    console.log("Popup image uploaded by admin:", metadata.userId);
+    return { url: file.url };
+  }),
+
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

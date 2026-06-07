@@ -268,3 +268,10 @@ export const notifications = pgTable("notifications", {
   isRead: boolean("is_read").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const settings = pgTable("settings", {
+  id: serial("id").primaryKey(),
+  announcementText: text("announcement_text").notNull().default("Welcome!"),
+  popupImageUrl: text("popup_image_url"), // Store the URL from UploadThing here
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
