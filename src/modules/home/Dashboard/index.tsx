@@ -201,7 +201,7 @@ export const DashboardView = () => {
       {/* We use 'max-w-full' here to ensure the inner div 
         respects the parent's boundaries.
       */}
-      <div className="whitespace-nowrap animate-marquee [animation-duration:25s] md:[animation-duration:20s] max-w-full">
+      <div className="whitespace-nowrap animate-marquee animation-duration:[25s] md:animation-duration:[20s] max-w-full">
         <span className="inline-block px-4 text-sm font-bold tracking-wide text-orange-500 md:text-base">
           {settings.announcementText}
         </span>

@@ -1,41 +1,49 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
+import { trpc } from "@/trpc/client"; 
 
 interface Question {
-  id: number;
+  id: string;
   questionText: string;
   imageUrl?: string | null;
   options: string[];
   subject: string;
 }
 
-// Updated interface to include classId and mode
 interface LiveExamPortalProps {
-  categorizedQuestions?: Record<string, Question[]>;
-  onSubmitExam?: (answers: Record<number, string>) => void;
+  onSubmitExam?: (answers: Record<string, string>) => void;
   isSubmitting?: boolean;
   classId: string;
   mode: "practice" | "exam";
 }
 
 export const LiveExamPortal = ({
-  categorizedQuestions = {},
   onSubmitExam,
   isSubmitting = false,
-  classId, // Now destructured
-  mode,    // Now destructured
+  classId,
+  mode,
 }: LiveExamPortalProps) => {
+  const [questions] = trpc.questions.getByClassId.useSuspenseQuery({ classId });
+  
+  const categorizedQuestions = useMemo(() => {
+    return (questions as Question[]).reduce((acc, q) => {
+      const subject = q.subject || "General";
+      if (!acc[subject]) acc[subject] = [];
+      acc[subject].push(q);
+      return acc;
+    }, {} as Record<string, Question[]>);
+  }, [questions]);
+
   const registeredSubjects = Object.keys(categorizedQuestions);
   
-  // States to monitor active subject tab and corresponding indices
+  // 3. States
   const [activeSubject, setActiveSubject] = useState<string>(registeredSubjects[0] || "");
   const [subjectIndices, setSubjectIndices] = useState<Record<string, number>>({});
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
 
-  // ... rest of your existing logic remains exactly the same ...
-  
+  // Guard: No questions available
   if (registeredSubjects.length === 0) {
     return (
       <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center">
@@ -143,7 +151,7 @@ export const LiveExamPortal = ({
               {currentQuestion.imageUrl && (
                 <img 
                   src={currentQuestion.imageUrl} 
-                  alt="Question diagram asset" 
+                  alt="Question diagram" 
                   className="mt-6 max-h-48 object-contain rounded-md border border-slate-100"
                 />
               )}
@@ -164,7 +172,7 @@ export const LiveExamPortal = ({
                     <span className="text-sm font-semibold text-slate-400 w-6">
                       ({prefix})
                     </span>
-                    <div className={`w-[18px] h-[18px] rounded-full border flex items-center justify-center shrink-0 transition-all ${
+                    <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
                       isSelected 
                         ? "border-[#009b72] bg-white shadow-[inset_0_0_0_2px_#fff,inset_0_0_0_6px_#009b72]" 
                         : "border-slate-300 bg-white group-hover:border-slate-400"
@@ -184,7 +192,7 @@ export const LiveExamPortal = ({
         )}
       </main>
 
-      {/* --- Footer remains same --- */}
+      {/* --- Footer Navigation --- */}
       <footer className="w-full bg-white border-t border-slate-200/80 py-4 mt-8 sticky bottom-0 z-20">
         <div className="max-w-[1200px] w-full mx-auto px-4 flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
           <div className="order-2 sm:order-1 flex justify-start">
@@ -194,7 +202,7 @@ export const LiveExamPortal = ({
               disabled={isSubmitting}
               className="bg-[#009b72] hover:bg-[#008561] text-white font-extrabold text-xs uppercase tracking-wider px-6 h-10 rounded-md shadow-sm transition-colors duration-150 disabled:opacity-50"
             >
-              {isSubmitting ? "Submitting..." : "Submit Examination"}
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           </div>
           <div className="order-1 sm:order-2 flex justify-center items-center gap-2 flex-wrap">
@@ -225,19 +233,19 @@ export const LiveExamPortal = ({
               type="button"
               onClick={handlePrev}
               disabled={currentIndex === 0 || currentQuestionsList.length === 0}
-              className="flex items-center justify-center gap-1 border border-slate-200 bg-[#ccece3] text-[#009b72] font-extrabold text-xs uppercase tracking-wider px-4 h-10 rounded-md transition-all hover:bg-[#bce4d9] disabled:opacity-40 disabled:hover:bg-[#ccece3] disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-1 border border-slate-200 bg-[#ccece3] text-[#009b72] font-extrabold text-xs uppercase tracking-wider px-4 h-10 rounded-md transition-all hover:bg-[#bce4d9] disabled:opacity-40"
             >
-              <ChevronLeft className="w-4 h-4 stroke-[3]" />
+              <ChevronLeft className="w-4 h-4 stroke-3" />
               Prev
             </button>
             <button
               type="button"
               onClick={handleNext}
               disabled={currentIndex === currentQuestionsList.length - 1 || currentQuestionsList.length === 0}
-              className="flex items-center justify-center gap-1 bg-[#009b72] hover:bg-[#008561] text-white font-extrabold text-xs uppercase tracking-wider px-4 h-10 rounded-md transition-colors shadow-sm disabled:opacity-40 disabled:hover:bg-[#009b72] disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-1 bg-[#009b72] hover:bg-[#008561] text-white font-extrabold text-xs uppercase tracking-wider px-4 h-10 rounded-md transition-colors shadow-sm disabled:opacity-40"
             >
               Next
-              <ChevronRight className="w-4 h-4 stroke-[3]" />
+              <ChevronRight className="w-4 h-4 stroke-3" />
             </button>
           </div>
         </div>

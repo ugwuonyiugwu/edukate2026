@@ -24,7 +24,7 @@ export function HomeNavbar({ activeTitle }: HomeNavbarProps) {
   const utils = trpc.useUtils();
 
   return (
-    <nav className="flex h-16 items-center justify-between w-full px-4 md:px-8 bg-blue-600 border-b border-blue-500 sticky top-0 z-40 shadow-md shadow-black/20">
+    <nav className="flex h-16 items-center justify-between w-full px-4 md:px-8 bg-blue-600 border-b border-blue-500 fixed top-0 z-40 shadow-md shadow-black/20">
       <div className="flex items-center gap-2 md:gap-4 overflow-hidden">
         <div className="flex items-center justify-center min-w-10 min-h-10">
           <SidebarTrigger className="text-white hover:bg-blue-700 transition-colors" />

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { baseProcedure, createTRPCRouter, protectedProcedure } from "@/trpc/init";
-import { questions, users, examResults } from "@/db/schema";
+import { questions, users, examResults, classes } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { UTApi } from "uploadthing/server";
@@ -36,14 +36,26 @@ export const curriculumRouter = createTRPCRouter({
       );
     }),
 
-  getByClassId: baseProcedure 
-    .input(z.object({ classId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      return await ctx.db.query.questions.findMany({
-        where: eq(questions.classId, input.classId),
-      });
-    }),
-
+  // @/trpc/routers/curriculum.ts
+getByClassId: baseProcedure 
+  .input(z.object({ classId: z.string() }))
+  .query(async ({ ctx, input }) => {
+    return await ctx.db
+      .select({
+        id: questions.id,
+        questionText: questions.text,
+        imageUrl: questions.imageUrl,
+        options: questions.options,
+        correctAnswer: questions.correctAnswer,
+        type: questions.type,
+        classId: questions.classId,
+        // JOIN the classes table to get the subject
+        subject: classes.subject, 
+      })
+      .from(questions)
+      .innerJoin(classes, eq(questions.classId, classes.id))
+      .where(eq(questions.classId, input.classId));
+  }),
   // Check if exam was already taken
   getExistingResult: protectedProcedure
     .input(z.object({ classId: z.string() }))

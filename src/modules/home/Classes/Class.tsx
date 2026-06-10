@@ -45,7 +45,7 @@ const EnrollmentContent = () => {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-[#e5e7eb] flex flex-col items-center py-4 sm:p-6 lg:py-8 gap-6">
+    <div className="min-h-screen bg-[#e5e7eb] flex flex-col items-center py-4 px-2 sm:p-6 lg:py-8 gap-6">
       
       {/* Banner Section - Optimized for all screen shapes */}
       <div className="max-w-7xl w-full">
@@ -66,7 +66,7 @@ const EnrollmentContent = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl w-full grid grid-cols-1 
+      <div className="max-w-7xl w-full grid px-2 grid-cols-1 
         sm:grid-cols-2    /* Two columns for iPads in portrait */
         lg:grid-cols-3    /* Three columns for Large Screens/iPad Landscape */
         gap-4 md:gap-6 mb-12"

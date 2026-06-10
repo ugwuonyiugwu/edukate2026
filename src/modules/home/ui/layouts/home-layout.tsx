@@ -56,7 +56,7 @@ export const HomeLayout = ({ children, role }: HomeLayoutProps) => {
         
         <SidebarInset className="flex flex-col flex-1 min-w-0">
           <HomeNavbar activeTitle={activeTitle} />
-          <main className="flex-1 min-w-0 w-full">
+          <main className="flex-1 pt-17 min-w-0 w-full">
             {children}
           </main>
         </SidebarInset>
