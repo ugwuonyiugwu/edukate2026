@@ -3,7 +3,7 @@ import { trpc } from "@/trpc/client";
 import { Loader2, Image as ImageIcon, BookOpenText, Layers, Gamepad2, PenTool, TrophyIcon } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,20 @@ export const DashboardView = () => {
   const { data: user } = trpc.users.getOne.useQuery();
   const { data: library, isLoading: isLibLoading } = trpc.documents.getLibrary.useQuery();
   const { data: settings, isLoading } = trpc.settings.getAnnouncement.useQuery();
+
+  // Real data fetching
+  const { data: allClasses = [], isLoading: isClassesLoading } = trpc.classes.getAll.useQuery({ level: "all" });
+  const { data: enrolledIds = [], isLoading: isEnrollmentsLoading } = trpc.classes.getEnrolledClassIds.useQuery();
+
+  // Dynamic Recent Items Logic with Type Matching
+  const recentItems = useMemo(() => {
+    if (isClassesLoading || isEnrollmentsLoading) return [];
+    
+    // Filter by matching IDs even if one is string and one is number
+    return allClasses.filter((c) => 
+      enrolledIds.includes(c.id) || enrolledIds.includes(String(c.id))
+    );
+  }, [allClasses, enrolledIds, isClassesLoading, isEnrollmentsLoading]);
   
   // Library Creation States
   const [isLibDialogOpen, setIsLibDialogOpen] = useState(false);
@@ -119,11 +133,7 @@ export const DashboardView = () => {
     }
   };
 
-  const recentItems = [
-    { id: '1', title: 'Fundamentals of History', initial: 'H', color: 'text-blue-600' },
-    { id: '2', title: 'New School Physics', initial: 'P', color: 'text-blue-800' },
-    { id: '3', title: 'Chemical Analysis', initial: 'C', color: 'text-blue-900' },
-  ];
+
 
   return (
     <div className="max-w-full mx-auto px-2 my-4 sm:px-4 bg-white min-h-screen">
@@ -246,20 +256,30 @@ export const DashboardView = () => {
       </div>
     </section>
 
-      {/* Recents & Updates */}
-      
-        <section>
-          <h3 className="text-lg font-bold mb-4">Recents</h3>
-          <div className="bg-[#e5e7eb] border border-gray-100 rounded-sm shadow-sm overflow-hidden w-full">
-            {recentItems.map((item, idx) => (
-              <div key={item.id} className={`flex items-center p-4 gap-4 ${idx !== recentItems.length - 1 ? 'border-2 border-gray-50' : ''}`}>
-                <span className={`text-xl font-black w-8 ${item.color}`}>{item.initial}</span>
-                <div className="h-8 w-1px bg-gray-200" />
+      <section>
+        <h3 className="text-lg font-bold ml-5 mb-4">Recents</h3>
+        <div className="bg-[#e5e7eb] border border-gray-100 rounded-sm shadow-sm overflow-hidden w-full">
+          {recentItems.length > 0 ? (
+            recentItems.map((item, idx) => (
+              <Link 
+                key={item.id} 
+                href={`/classes/${item.id}`}
+                className={`flex items-center p-4 gap-4 hover:bg-gray-200 transition-colors ${idx !== recentItems.length - 1 ? 'border-2 border-gray-50' : ''}`}
+              >
+                <span className="text-xl font-black w-8 'text-blue-700">
+                  {item.title.charAt(0).toUpperCase()}
+                </span>
+                <div className="h-8 w-[1px] bg-gray-200" />
                 <span className="font-medium text-gray-700">{item.title}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+              </Link>
+            ))
+          ) : (
+            <div className="p-4 text-sm text-gray-500 text-center">
+              {(isClassesLoading || isEnrollmentsLoading) ? "Loading classes..." : "No recent classes found."}
+            </div>
+          )}
+        </div>
+      </section>
 
       <div className="h-40 w-60 border-2 border-b-blue-800 mt-7">
 

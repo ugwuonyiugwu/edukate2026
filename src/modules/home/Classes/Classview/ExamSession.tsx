@@ -91,11 +91,11 @@ export const LiveExamPortal = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5] flex flex-col justify-between antialiased selection:bg-indigo-500/10">
+    <div className="h-screen bg-[#f0f2f5] flex flex-col justify-between antialiased selection:bg-indigo-500/10">
       
       {/* --- Subject Category Navigation Dock --- */}
-      <header className="w-full bg-white border-b border-slate-200/80 shadow-sm sticky top-0 z-30">
-        <div className="max-w-[1200px] w-full mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <header className="w-full bg-white border-b border-slate-200/80 shadow-sm fixed top-15 z-30">
+        <div className="max-w-300 w-full mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-[#009b72]">
             <BookOpen className="w-5 h-5 stroke-[2.5]" />
             <span className="font-extrabold text-sm uppercase tracking-wider">
@@ -137,9 +137,9 @@ export const LiveExamPortal = ({
       </header>
 
       {/* --- Main Question Presentation Canvas --- */}
-      <main className="flex-1 max-w-[1200px] w-full mx-auto px-4 pt-6">
+      <main className="flex-1 max-w-300 w-full mx-auto mt-10 px-4 pt-6">
         {currentQuestion ? (
-          <div className="bg-white rounded-lg border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] p-8 md:p-12 min-h-[450px] flex flex-col justify-between">
+          <div className="bg-white rounded-lg border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.05)] p-8 md:p-12 min-h-112.5 flex flex-col justify-between">
             
             <div className="mb-10">
               <span className="text-xs font-extrabold tracking-widest text-[#009b72] uppercase block mb-2">
@@ -193,8 +193,8 @@ export const LiveExamPortal = ({
       </main>
 
       {/* --- Footer Navigation --- */}
-      <footer className="w-full bg-white border-t border-slate-200/80 py-4 mt-8 sticky bottom-0 z-20">
-        <div className="max-w-[1200px] w-full mx-auto px-4 flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
+      <footer className="w-full bg-white border-t border-slate-200/80 py-4 sticky bottom-0 z-20">
+        <div className="max-w-300 w-full mx-auto px-4 flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
           <div className="order-2 sm:order-1 flex justify-start">
             <button
               type="button"

@@ -40,13 +40,17 @@ export const classRouter = createTRPCRouter({
   getAll: baseProcedure
     .input(z.object({ level: z.string().optional() }).optional())
     .query(async ({ ctx, input }) => {
+      // If level is "all" or undefined, return everything. Otherwise, filter by level.
+      const levelFilter = input?.level && input.level !== "all" 
+        ? eq(classes.level, input.level) 
+        : undefined;
+
       return await ctx.db.query.classes.findMany({
-        where: input?.level ? eq(classes.level, input.level) : undefined,
+        where: levelFilter,
         with: { teacher: true },
         orderBy: [desc(classes.createdAt)],
       });
     }),
-
   create: protectedProcedure
     .input(z.object({
       title: z.string().min(1),
